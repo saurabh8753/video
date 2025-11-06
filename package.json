@@ -1,14 +1,9 @@
 {
-  "name": "uteraplay",
+  "name": "uteraplay-bot",
   "version": "1.0.0",
-  "description": "Telegram bot that creates video player pages for Terabox links using iTeraPlay API",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "start": "node index.js"
-  },
   "dependencies": {
-    "express": "^4.18.2",
-    "node-fetch": "^3.3.2"
+    "express": "^4.18.2"
   }
 }
