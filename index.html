@@ -3,163 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Snake Pro Max</title>
+    <title>Snake Pro Mobile</title>
     <style>
         :root {
             --neon-blue: #00f2ff;
             --neon-pink: #ff0055;
-            --bg-dark: #050505;
+            --bg-dark: #0a0a0a;
         }
 
         body {
             background-color: var(--bg-dark);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
-            touch-action: none; /* Mobile scroll block karne ke liye */
+            overflow: hidden;
+            touch-action: none; /* Screen scroll rokne ke liye */
         }
 
-        .game-wrapper {
-            position: relative;
-            border: 4px solid #222;
-            border-radius: 15px;
+        .stats-bar {
+            width: 90vw;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
             padding: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 90vw;
+            max-width: 400px;
+            aspect-ratio: 1/1;
             background: #111;
-            box-shadow: 0 0 30px rgba(0,0,0,1);
+            border: 3px solid #333;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         canvas {
-            background: #000;
-            display: block;
-            border-radius: 5px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
             width: 100%;
-            max-width: 400px;
-            margin-bottom: 10px;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            height: 100%;
+            display: block;
+            border-radius: 12px;
         }
 
-        #overlay {
+        /* Responsive Mobile Controls */
+        .controls {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 75px);
+            grid-template-rows: repeat(2, 75px);
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            width: 75px;
+            height: 75px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+            -webkit-tap-highlight-color: transparent; /* Blue box hatane ke liye mobile par */
+        }
+
+        .control-btn:active {
+            background: var(--neon-blue);
+            color: black;
+            transform: scale(0.9);
+        }
+
+        .up { grid-column: 2; grid-row: 1; }
+        .left { grid-column: 1; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; }
+
+        #menu {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 100;
-            border-radius: 10px;
+            justify-content: center;
+            z-index: 5;
+            border-radius: 12px;
         }
 
-        h1 { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 0; }
-        
-        button {
-            background: transparent;
-            color: var(--neon-pink);
-            border: 2px solid var(--neon-pink);
-            padding: 12px 40px;
-            font-size: 20px;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 50px;
-            transition: 0.3s;
-        }
-
-        button:hover {
+        button#start-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
             background: var(--neon-pink);
             color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
             box-shadow: 0 0 20px var(--neon-pink);
         }
-
-        /* Mobile Controls */
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            width: 60px;
-            height: 60px;
-            background: #222;
-            border: 1px solid #444;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
-            font-size: 24px;
-            user-select: none;
-        }
-
-        .up { grid-column: 2; }
-        .left { grid-column: 1; }
-        .down { grid-column: 2; }
-        .right { grid-column: 3; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="color:var(--neon-blue)">Score: <span id="score">0</span></div>
-        <div style="color:var(--neon-pink)">Best: <span id="highScore">0</span></div>
+    <div class="stats-bar">
+        <span style="color: var(--neon-blue)">SCORE: <span id="score">0</span></span>
+        <span style="color: var(--neon-pink)">BEST: <span id="highScore">0</span></span>
     </div>
 
-    <div class="game-wrapper">
-        <canvas id="snakeGame" width="400" height="400"></canvas>
-        
-        <div id="overlay">
-            <h1 id="msg">NEON SNAKE</h1>
-            <p id="finalScore" style="display:none; margin-top:10px;"></p>
-            <button onclick="startGame()">PLAY NOW</button>
+    <div class="canvas-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="menu">
+            <h1 id="title" style="color: var(--neon-blue)">NEON SNAKE</h1>
+            <button id="start-btn" onclick="startGame()">PLAY</button>
         </div>
     </div>
 
     <div class="controls">
-        <div class="btn up" onclick="setDir('UP')">▲</div>
-        <div class="btn left" onclick="setDir('LEFT')">◀</div>
-        <div class="btn down" onclick="setDir('DOWN')">▼</div>
-        <div class="btn right" onclick="setDir('RIGHT')">▶</div>
+        <div class="control-btn up" ontouchstart="setDir('UP')" onmousedown="setDir('UP')">▲</div>
+        <div class="control-btn left" ontouchstart="setDir('LEFT')" onmousedown="setDir('LEFT')">◀</div>
+        <div class="control-btn down" ontouchstart="setDir('DOWN')" onmousedown="setDir('DOWN')">▼</div>
+        <div class="control-btn right" ontouchstart="setDir('RIGHT')" onmousedown="setDir('RIGHT')">▶</div>
     </div>
 
     <script>
-        const canvas = document.getElementById("snakeGame");
+        const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const scoreEl = document.getElementById("score");
         const highEl = document.getElementById("highScore");
-        const overlay = document.getElementById("overlay");
-        const msg = document.getElementById("msg");
-
+        const menu = document.getElementById("menu");
+        
         const box = 20;
         let snake, food, d, score, gameLoop;
-        let speed = 200;
+        let speed = 160; // Smooth Slow speed
 
-        let highScore = localStorage.getItem("neonSnakeBest") || 0;
+        let highScore = localStorage.getItem("snakeMobileBest") || 0;
         highEl.innerText = highScore;
 
         function startGame() {
-            // Reset variables
-            snake = [{x: 10 * box, y: 10 * box}, {x: 9 * box, y: 10 * box}]; 
-            d = "RIGHT"; // Default direction taaki start hote hi na mare
+            snake = [{x: 10 * box, y: 10 * box}, {x: 9 * box, y: 10 * box}];
+            d = "RIGHT";
             score = 0;
-            speed = 120;
             scoreEl.innerText = score;
-            overlay.style.display = "none";
-            
+            menu.style.display = "none";
             spawnFood();
-            
             if(gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(draw, speed);
         }
@@ -169,93 +166,78 @@
                 x: Math.floor(Math.random() * 19) * box,
                 y: Math.floor(Math.random() * 19) * box
             };
-            // Check ki khana snake ke upar na gire
-            for(let part of snake) {
-                if(part.x === food.x && part.y === food.y) spawnFood();
-            }
         }
 
-        document.addEventListener("keydown", e => {
-            if(e.key === "ArrowUp" && d !== "DOWN") d = "UP";
-            if(e.key === "ArrowDown" && d !== "UP") d = "DOWN";
-            if(e.key === "ArrowLeft" && d !== "RIGHT") d = "LEFT";
-            if(e.key === "ArrowRight" && d !== "LEFT") d = "RIGHT";
-        });
-
-        function setDir(newDir) {
-            if(newDir === "UP" && d !== "DOWN") d = "UP";
-            if(newDir === "DOWN" && d !== "UP") d = "DOWN";
-            if(newDir === "LEFT" && d !== "RIGHT") d = "LEFT";
-            if(newDir === "RIGHT" && d !== "LEFT") d = "RIGHT";
+        function setDir(dir) {
+            if(dir === "UP" && d !== "DOWN") d = "UP";
+            if(dir === "DOWN" && d !== "UP") d = "DOWN";
+            if(dir === "LEFT" && d !== "RIGHT") d = "LEFT";
+            if(dir === "RIGHT" && d !== "LEFT") d = "RIGHT";
         }
 
         function draw() {
-            // Clear Canvas
+            // Background grid
             ctx.fillStyle = "#000";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Food
+            
+            // Food
             ctx.fillStyle = "#ff0055";
             ctx.shadowBlur = 15;
             ctx.shadowColor = "#ff0055";
             ctx.fillRect(food.x, food.y, box, box);
 
-            // Draw Snake
-            snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? "#00f2ff" : "#008891";
-                ctx.shadowBlur = index === 0 ? 15 : 0;
-                ctx.shadowColor = "#00f2ff";
+            // Snake
+            snake.forEach((part, i) => {
+                ctx.fillStyle = i === 0 ? "#00f2ff" : "#008eb3";
+                ctx.shadowBlur = i === 0 ? 15 : 0;
                 ctx.fillRect(part.x, part.y, box, box);
             });
             ctx.shadowBlur = 0;
 
-            let headX = snake[0].x;
-            let headY = snake[0].y;
+            let hX = snake[0].x;
+            let hY = snake[0].y;
 
-            if(d === "LEFT") headX -= box;
-            if(d === "UP") headY -= box;
-            if(d === "RIGHT") headX += box;
-            if(d === "DOWN") headY += box;
+            if(d === "UP") hY -= box;
+            if(d === "DOWN") hY += box;
+            if(d === "LEFT") hX -= box;
+            if(d === "RIGHT") hX += box;
 
-            // Check Collision with Walls or Self
-            if(headX < 0 || headY < 0 || headX >= canvas.width || headY >= canvas.height || 
-               snake.some((part, i) => i !== 0 && part.x === headX && part.y === headY)) {
+            // Collision Check
+            if(hX < 0 || hY < 0 || hX >= canvas.width || hY >= canvas.height || 
+               snake.some((p, i) => i!==0 && p.x === hX && p.y === hY)) {
                 gameOver();
                 return;
             }
 
-            // Check if ate food
-            if(headX === food.x && headY === food.y) {
+            if(hX === food.x && hY === food.y) {
                 score++;
                 scoreEl.innerText = score;
                 spawnFood();
-                // Speed boost
-                if(score % 5 === 0) {
-                    clearInterval(gameLoop);
-                    speed = Math.max(60, speed - 7);
-                    gameLoop = setInterval(draw, speed);
-                }
             } else {
                 snake.pop();
             }
-
-            snake.unshift({x: headX, y: headY});
+            snake.unshift({x: hX, y: hY});
         }
 
         function gameOver() {
             clearInterval(gameLoop);
-            overlay.style.display = "flex";
-            msg.innerText = "GAME OVER";
-            msg.style.color = "var(--neon-pink)";
-            document.getElementById("finalScore").style.display = "block";
-            document.getElementById("finalScore").innerText = "Your Score: " + score;
-            
+            menu.style.display = "flex";
+            document.getElementById("title").innerText = "CRASHED!";
+            document.getElementById("start-btn").innerText = "RETRY";
             if(score > highScore) {
                 highScore = score;
-                localStorage.setItem("neonSnakeBest", highScore);
+                localStorage.setItem("snakeMobileBest", highScore);
                 highEl.innerText = highScore;
             }
         }
+
+        // Keyboard support also
+        document.addEventListener("keydown", e => {
+            if(e.key === "ArrowUp") setDir("UP");
+            if(e.key === "ArrowDown") setDir("DOWN");
+            if(e.key === "ArrowLeft") setDir("LEFT");
+            if(e.key === "ArrowRight") setDir("RIGHT");
+        });
     </script>
 </body>
 </html>
