@@ -3,81 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Page</title>
+    <title>Professional Snake Game</title>
     <style>
+        /* CSS: Game ko sundar banane ke liye */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #ffffff;
-        }
-        .container { text-align: center; width: 90%; }
-        .download-btn {
-            background: #0095f6;
+            background: #2c3e50;
             color: white;
-            padding: 16px 40px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            width: 100%;
-            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
         }
-        .warning-text {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #8e8e8e;
-            line-height: 1.5;
+        canvas {
+            border: 5px solid #ecf0f1;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background-color: #000;
+        }
+        .stats {
+            margin-bottom: 10px;
+            font-size: 24px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <button id="mainBtn" class="download-btn">
-            Watch Full in App
-        </button>
-        
-        <p class="warning-text">
-            If page doesn't open, click the <b>three dots (⋮)</b> above <br> and select <b>"Open in Browser"</b>
-        </p>
+    <div class="stats">
+        Score: <span id="scoreVal">0</span> | High Score: <span id="highScoreVal">0</span>
     </div>
+    
+    <canvas id="snakeGame" width="400" height="400"></canvas>
 
     <script>
-        document.getElementById('mainBtn').addEventListener('click', function() {
-            var downloadUrl = "https://desisavar.pages.dev/app";
-            var adsUrl = "https://www.effectivegatecpm.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8";
+        const canvas = document.getElementById("snakeGame");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("scoreVal");
+        const highScoreElement = document.getElementById("highScoreVal");
 
-            // Check if user is on Android
-            var isAndroid = /Android/i.test(navigator.userAgent);
-            var isInstagram = /Instagram/i.test(navigator.userAgent);
+        let box = 20; // Ek square ki size
+        let snake = [{ x: 10 * box, y: 10 * box }]; // Snake ki shuruati position
+        let food = {
+            x: Math.floor(Math.random() * 19 + 1) * box,
+            y: Math.floor(Math.random() * 19 + 1) * box
+        };
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        highScoreElement.innerHTML = highScore;
 
-            if (isAndroid) {
-                // Intent URL for Chrome
-                var chromeIntent = "intent://" + downloadUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
-                
-                // 1. Pehle Instagram ke andar Ads wala link open karo
-                // Ye zaroori hai taaki Instagram ka browser redirect accept kare
-                window.location.href = adsUrl;
+        let d; // Direction
 
-                // 2. Ek chote delay ke baad Chrome ko trigger karo
-                setTimeout(function() {
-                    window.location.assign(chromeIntent);
-                }, 1000);
+        // Keyboard inputs ko sunne ke liye
+        document.addEventListener("keydown", direction);
 
-            } else {
-                // iPhone/PC logic
-                window.open(downloadUrl, '_blank');
-                window.location.href = adsUrl;
+        function direction(event) {
+            if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+            else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+            else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+            else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+        }
+
+        // Collision Check (Deewar ya khud se takrana)
+        function collision(head, array) {
+            for(let i = 0; i < array.length; i++) {
+                if(head.x == array[i].x && head.y == array[i].y) return true;
             }
-        });
-    </script>
+            return false;
+        }
 
+        function draw() {
+            // Canvas clear karna
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Snake banana
+            for(let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i == 0) ? "#2ecc71" : "#27ae60"; // Head green, body dark green
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            // Food banana
+            ctx.fillStyle = "#e74c3c";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            // Purani head position
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            // Direction ke hisaab se move karna
+            if( d == "LEFT") snakeX -= box;
+            if( d == "UP") snakeY -= box;
+            if( d == "RIGHT") snakeX += box;
+            if( d == "DOWN") snakeY += box;
+
+            // Agar snake khana kha le
+            if(snakeX == food.x && snakeY == food.y) {
+                score++;
+                scoreElement.innerHTML = score;
+                food = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+            } else {
+                snake.pop(); // Tail hatana
+            }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            // Game Over Rules
+            if(snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || collision(newHead, snake)) {
+                clearInterval(game);
+                if(score > highScore) {
+                    localStorage.setItem("highScore", score);
+                }
+                alert("Game Over! Aapka Score: " + score);
+                location.reload(); // Game restart
+            }
+
+            snake.unshift(newHead); // Naya head jodna
+        }
+
+        // Game ki speed (100ms = 0.1 second)
+        let game = setInterval(draw, 100);
+
+    </script>
 </body>
 </html>
