@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Link</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fafafa;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        .download-btn {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 16px 32px;
+            font-size: 19px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .info-text {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="#" id="mainBtn" class="download-btn">
+            🚀 Watch Full Video in App
+        </a>
+        <p class="info-text">If link doesn't open, click ⋮ and select "Open in Browser"</p>
+    </div>
+
+    <script>
+        document.getElementById('mainBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            var targetAppUrl = "https://desisavar.pages.dev/app";
+            var adsUrl = "https://www.effectivegatecpm.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8";
+
+            // Android logic for Instagram/Telegram
+            if (navigator.userAgent.match(/Android/i)) {
+                
+                // Chrome ko force karne ka intent
+                var intentUrl = "intent://" + targetAppUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+                
+                // Pehle Chrome me bhejne ki koshish
+                window.location.href = intentUrl;
+
+                // 800ms baad Instagram ke browser ko ads par redirect karna
+                setTimeout(function() {
+                    window.location.href = adsUrl;
+                }, 800);
+
+            } else {
+                // iPhone/PC ke liye
+                window.open(targetAppUrl, '_blank');
+                window.location.href = adsUrl;
+            }
+        });
+
+        // Auto-detect Instagram: Agar Instagram hai toh thoda delay dekar alert ya guide de sakte hain
+        if (navigator.userAgent.includes("Instagram")) {
+            console.log("Instagram Browser Detected");
+        }
+    </script>
+
+</body>
+</html>
