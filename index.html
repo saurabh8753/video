@@ -48,12 +48,17 @@ video{
 .download{
   background:#16a34a;
 }
+.note{
+  font-size:14px;
+  color:#555;
+  margin-top:8px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="card">
   <h2>▶ Play & Download</h2>
 
   <video id="video" controls></video>
@@ -61,14 +66,22 @@ video{
   <a id="downloadBtn" class="btn download" href="#">
     ⬇ Download Video
   </a>
+
+  <div class="note" id="note"></div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const teraUrl = params.get("url");
 
-if(!teraUrl){
-  alert("Invalid TeraBox Link");
+const card = document.getElementById("card");
+const video = document.getElementById("video");
+const downloadBtn = document.getElementById("downloadBtn");
+const note = document.getElementById("note");
+
+if (!teraUrl) {
+  card.innerHTML = "<h3>❌ Invalid TeraBox link</h3>";
+  throw new Error("No URL provided");
 }
 
 const api =
@@ -79,24 +92,56 @@ fetch(api)
 .then(res => res.json())
 .then(data => {
 
-  const playUrl = data.stream || data.hls || data.play;
-  const downloadUrl = data.download || data.url;
+  console.log("ZTERA API RESPONSE:", data);
 
-  const video = document.getElementById("video");
+  let playUrl =
+    data.stream ||
+    data.hls ||
+    data.play ||
+    data.download ||
+    data.url;
 
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(playUrl);
-    hls.attachMedia(video);
-  } else {
-    video.src = playUrl;
+  if (!playUrl) {
+    throw new Error("No playable URL found");
   }
 
-  document.getElementById("downloadBtn").href = downloadUrl;
+  // Always set download button
+  downloadBtn.href = playUrl;
+
+  // Check if playable
+  const isHls = playUrl.includes(".m3u8");
+  const isMp4 = playUrl.includes(".mp4");
+
+  if (isHls || isMp4) {
+    if (isHls && Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(playUrl);
+      hls.attachMedia(video);
+    } else {
+      video.src = playUrl;
+    }
+    note.innerText = "If video does not play, use Download button.";
+  } else {
+    // Fallback UI
+    card.innerHTML = `
+      <h3>⚠️ Preview not available</h3>
+      <p>This video cannot be streamed inline.</p>
+      <a href="${playUrl}" class="btn download">
+        ⬇ Download Video
+      </a>
+      <div class="note">
+        Some TeraBox links block direct streaming.
+      </div>
+    `;
+  }
 
 })
-.catch(()=>{
-  alert("Failed to load video");
+.catch(err => {
+  console.error(err);
+  card.innerHTML = `
+    <h3>❌ Video not found</h3>
+    <p>API responded but stream is protected.</p>
+  `;
 });
 </script>
 
