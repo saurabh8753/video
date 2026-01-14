@@ -27,13 +27,20 @@ body{
   text-align:center;
 }
 h2{
-  margin-bottom:12px;
+  margin-bottom:10px;
   color:#3248f5;
 }
 video{
   width:100%;
   border-radius:16px;
   background:#000;
+}
+select{
+  width:100%;
+  padding:10px;
+  margin-top:12px;
+  border-radius:12px;
+  font-size:16px;
 }
 .btn{
   display:block;
@@ -49,7 +56,7 @@ video{
   background:#16a34a;
 }
 .note{
-  font-size:14px;
+  font-size:13px;
   color:#555;
   margin-top:8px;
 }
@@ -63,84 +70,87 @@ video{
 
   <video id="video" controls></video>
 
+  <select id="qualitySelect"></select>
+
   <a id="downloadBtn" class="btn download" href="#">
     ⬇ Download Video
   </a>
 
-  <div class="note" id="note"></div>
+  <div class="note">If video does not play, try another quality.</div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const teraUrl = params.get("url");
 
-const card = document.getElementById("card");
 const video = document.getElementById("video");
+const qualitySelect = document.getElementById("qualitySelect");
 const downloadBtn = document.getElementById("downloadBtn");
-const note = document.getElementById("note");
+const card = document.getElementById("card");
 
 if (!teraUrl) {
-  card.innerHTML = "<h3>❌ Invalid TeraBox link</h3>";
-  throw new Error("No URL provided");
+  card.innerHTML = "<h3>❌ Invalid link</h3>";
+  throw new Error("No URL");
 }
 
+// ⚠️ YAHAN APNA API ENDPOINT LAGAO
 const api =
-  "https://ztera.yaartunah.workers.dev/?url=" +
+  "https://iteraplay.tera-api67.workers.dev/?url=" +
   encodeURIComponent(teraUrl);
 
 fetch(api)
 .then(res => res.json())
 .then(data => {
 
-  console.log("ZTERA API RESPONSE:", data);
-
-  let playUrl =
-    data.stream ||
-    data.hls ||
-    data.play ||
-    data.download ||
-    data.url;
-
-  if (!playUrl) {
-    throw new Error("No playable URL found");
+  if (!data.list || !data.list.length) {
+    throw new Error("No files found");
   }
 
-  // Always set download button
-  downloadBtn.href = playUrl;
+  const file = data.list[0];
 
-  // Check if playable
-  const isHls = playUrl.includes(".m3u8");
-  const isMp4 = playUrl.includes(".mp4");
+  // 🔹 Download
+  downloadBtn.href = file.fast_download_link || file.download_link;
 
-  if (isHls || isMp4) {
-    if (isHls && Hls.isSupported()) {
+  // 🔹 Quality streams
+  const streams = file.fast_stream_url || {};
+
+  if (!Object.keys(streams).length) {
+    throw new Error("No stream URLs");
+  }
+
+  // Populate quality selector
+  for (const q in streams) {
+    const opt = document.createElement("option");
+    opt.value = streams[q];
+    opt.textContent = q;
+    qualitySelect.appendChild(opt);
+  }
+
+  // Play selected quality
+  function playStream(url){
+    if (Hls.isSupported()) {
       const hls = new Hls();
-      hls.loadSource(playUrl);
+      hls.loadSource(url);
       hls.attachMedia(video);
     } else {
-      video.src = playUrl;
+      video.src = url;
     }
-    note.innerText = "If video does not play, use Download button.";
-  } else {
-    // Fallback UI
-    card.innerHTML = `
-      <h3>⚠️ Preview not available</h3>
-      <p>This video cannot be streamed inline.</p>
-      <a href="${playUrl}" class="btn download">
-        ⬇ Download Video
-      </a>
-      <div class="note">
-        Some TeraBox links block direct streaming.
-      </div>
-    `;
   }
+
+  // Default play first quality
+  playStream(qualitySelect.value);
+
+  qualitySelect.addEventListener("change", () => {
+    playStream(qualitySelect.value);
+  });
 
 })
 .catch(err => {
   console.error(err);
   card.innerHTML = `
-    <h3>❌ Video not found</h3>
-    <p>API responded but stream is protected.</p>
+    <h3>❌ Video cannot be played</h3>
+    <p>Stream blocked or expired.</p>
+    <a href="#" class="btn download">⬇ Download Only</a>
   `;
 });
 </script>
