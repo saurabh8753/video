@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TeraPlayDown – Player</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TeraPlayDown – Download</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 body{
   margin:0;
-  font-family:Inter,system-ui;
-  background:#f0f2f5;
+  font-family:Inter,system-ui,Arial;
+  background:#f2f4f8;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -21,26 +21,24 @@ body{
   background:#fff;
   width:100%;
   max-width:420px;
-  padding:18px;
+  padding:20px;
   border-radius:22px;
   box-shadow:0 20px 50px rgba(0,0,0,.15);
   text-align:center;
 }
 h2{
-  margin-bottom:10px;
+  margin:0 0 8px;
   color:#3248f5;
+}
+p{
+  font-size:14px;
+  color:#555;
 }
 video{
   width:100%;
   border-radius:16px;
   background:#000;
-}
-select{
-  width:100%;
-  padding:10px;
-  margin-top:12px;
-  border-radius:12px;
-  font-size:16px;
+  display:none;
 }
 .btn{
   display:block;
@@ -55,10 +53,14 @@ select{
 .download{
   background:#16a34a;
 }
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:8px;
+.badge{
+  display:inline-block;
+  margin-top:10px;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  background:#eef2ff;
+  color:#3248f5;
 }
 </style>
 </head>
@@ -66,34 +68,32 @@ select{
 <body>
 
 <div class="card" id="card">
-  <h2>▶ Play & Download</h2>
+  <h2>⬇ Download Ready</h2>
+  <p>Video preview may not work on some browsers.</p>
 
   <video id="video" controls></video>
-
-  <select id="qualitySelect"></select>
 
   <a id="downloadBtn" class="btn download" href="#">
     ⬇ Download Video
   </a>
 
-  <div class="note">If video does not play, try another quality.</div>
+  <div class="badge">Fast & Secure</div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const teraUrl = params.get("url");
 
-const video = document.getElementById("video");
-const qualitySelect = document.getElementById("qualitySelect");
-const downloadBtn = document.getElementById("downloadBtn");
 const card = document.getElementById("card");
+const video = document.getElementById("video");
+const downloadBtn = document.getElementById("downloadBtn");
 
 if (!teraUrl) {
   card.innerHTML = "<h3>❌ Invalid link</h3>";
   throw new Error("No URL");
 }
 
-// ⚠️ YAHAN APNA API ENDPOINT LAGAO
+/* 🔹 API ENDPOINT */
 const api =
   "https://iteraplay.tera-api67.workers.dev/?url=" +
   encodeURIComponent(teraUrl);
@@ -102,55 +102,43 @@ fetch(api)
 .then(res => res.json())
 .then(data => {
 
-  if (!data.list || !data.list.length) {
-    throw new Error("No files found");
-  }
+  const file = data?.list?.[0];
+  if (!file) throw new Error("No file");
 
-  const file = data.list[0];
+  /* ✅ Download ALWAYS works */
+  const downloadUrl =
+    file.fast_download_link || file.download_link;
 
-  // 🔹 Download
-  downloadBtn.href = file.fast_download_link || file.download_link;
+  downloadBtn.href = downloadUrl;
 
-  // 🔹 Quality streams
+  /* ▶ Try preview (BEST-EFFORT only) */
   const streams = file.fast_stream_url || {};
+  const firstStream = Object.values(streams)[0];
 
-  if (!Object.keys(streams).length) {
-    throw new Error("No stream URLs");
+  if (firstStream && Hls.isSupported()) {
+    video.style.display = "block";
+
+    const hls = new Hls({
+      enableWorker: false,
+      lowLatencyMode: false
+    });
+
+    hls.loadSource(firstStream);
+    hls.attachMedia(video);
+
+    /* ❌ If stream fails → hide player silently */
+    hls.on(Hls.Events.ERROR, () => {
+      video.style.display = "none";
+    });
   }
-
-  // Populate quality selector
-  for (const q in streams) {
-    const opt = document.createElement("option");
-    opt.value = streams[q];
-    opt.textContent = q;
-    qualitySelect.appendChild(opt);
-  }
-
-  // Play selected quality
-  function playStream(url){
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-    } else {
-      video.src = url;
-    }
-  }
-
-  // Default play first quality
-  playStream(qualitySelect.value);
-
-  qualitySelect.addEventListener("change", () => {
-    playStream(qualitySelect.value);
-  });
 
 })
 .catch(err => {
   console.error(err);
   card.innerHTML = `
-    <h3>❌ Video cannot be played</h3>
-    <p>Stream blocked or expired.</p>
-    <a href="#" class="btn download">⬇ Download Only</a>
+    <h3>⬇ Download Only</h3>
+    <p>Preview not available for this link.</p>
+    <a href="#" class="btn download">⬇ Download Video</a>
   `;
 });
 </script>
