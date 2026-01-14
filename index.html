@@ -1,243 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Pro Mobile</title>
-    <style>
-        :root {
-            --neon-blue: #00f2ff;
-            --neon-pink: #ff0055;
-            --bg-dark: #0a0a0a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeraPlayDown – Player</title>
 
-        body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            touch-action: none; /* Screen scroll rokne ke liye */
-        }
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-        .stats-bar {
-            width: 90vw;
-            max-width: 400px;
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-        }
-
-        .canvas-container {
-            position: relative;
-            width: 90vw;
-            max-width: 400px;
-            aspect-ratio: 1/1;
-            background: #111;
-            border: 3px solid #333;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            border-radius: 12px;
-        }
-
-        /* Responsive Mobile Controls */
-        .controls {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: repeat(3, 75px);
-            grid-template-rows: repeat(2, 75px);
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .control-btn {
-            width: 75px;
-            height: 75px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--neon-blue);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
-            -webkit-tap-highlight-color: transparent; /* Blue box hatane ke liye mobile par */
-        }
-
-        .control-btn:active {
-            background: var(--neon-blue);
-            color: black;
-            transform: scale(0.9);
-        }
-
-        .up { grid-column: 2; grid-row: 1; }
-        .left { grid-column: 1; grid-row: 2; }
-        .down { grid-column: 2; grid-row: 2; }
-        .right { grid-column: 3; grid-row: 2; }
-
-        #menu {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            border-radius: 12px;
-        }
-
-        button#start-btn {
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            background: var(--neon-pink);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 0 20px var(--neon-pink);
-        }
-    </style>
+<style>
+body{
+  margin:0;
+  font-family:Inter,system-ui;
+  background:#f0f2f5;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.card{
+  background:#fff;
+  width:100%;
+  max-width:420px;
+  padding:18px;
+  border-radius:22px;
+  box-shadow:0 20px 50px rgba(0,0,0,.15);
+  text-align:center;
+}
+h2{
+  margin-bottom:12px;
+  color:#3248f5;
+}
+video{
+  width:100%;
+  border-radius:16px;
+  background:#000;
+}
+.btn{
+  display:block;
+  margin-top:14px;
+  padding:16px;
+  border-radius:50px;
+  text-decoration:none;
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+}
+.download{
+  background:#16a34a;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="stats-bar">
-        <span style="color: var(--neon-blue)">SCORE: <span id="score">0</span></span>
-        <span style="color: var(--neon-pink)">BEST: <span id="highScore">0</span></span>
-    </div>
+<div class="card">
+  <h2>▶ Play & Download</h2>
 
-    <div class="canvas-container">
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div id="menu">
-            <h1 id="title" style="color: var(--neon-blue)">NEON SNAKE</h1>
-            <button id="start-btn" onclick="startGame()">PLAY</button>
-        </div>
-    </div>
+  <video id="video" controls></video>
 
-    <div class="controls">
-        <div class="control-btn up" ontouchstart="setDir('UP')" onmousedown="setDir('UP')">▲</div>
-        <div class="control-btn left" ontouchstart="setDir('LEFT')" onmousedown="setDir('LEFT')">◀</div>
-        <div class="control-btn down" ontouchstart="setDir('DOWN')" onmousedown="setDir('DOWN')">▼</div>
-        <div class="control-btn right" ontouchstart="setDir('RIGHT')" onmousedown="setDir('RIGHT')">▶</div>
-    </div>
+  <a id="downloadBtn" class="btn download" href="#">
+    ⬇ Download Video
+  </a>
+</div>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreEl = document.getElementById("score");
-        const highEl = document.getElementById("highScore");
-        const menu = document.getElementById("menu");
-        
-        const box = 20;
-        let snake, food, d, score, gameLoop;
-        let speed = 160; // Smooth Slow speed
+<script>
+const params = new URLSearchParams(window.location.search);
+const teraUrl = params.get("url");
 
-        let highScore = localStorage.getItem("snakeMobileBest") || 0;
-        highEl.innerText = highScore;
+if(!teraUrl){
+  alert("Invalid TeraBox Link");
+}
 
-        function startGame() {
-            snake = [{x: 10 * box, y: 10 * box}, {x: 9 * box, y: 10 * box}];
-            d = "RIGHT";
-            score = 0;
-            scoreEl.innerText = score;
-            menu.style.display = "none";
-            spawnFood();
-            if(gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(draw, speed);
-        }
+const api =
+  "https://ztera.yaartunah.workers.dev/?url=" +
+  encodeURIComponent(teraUrl);
 
-        function spawnFood() {
-            food = {
-                x: Math.floor(Math.random() * 19) * box,
-                y: Math.floor(Math.random() * 19) * box
-            };
-        }
+fetch(api)
+.then(res => res.json())
+.then(data => {
 
-        function setDir(dir) {
-            if(dir === "UP" && d !== "DOWN") d = "UP";
-            if(dir === "DOWN" && d !== "UP") d = "DOWN";
-            if(dir === "LEFT" && d !== "RIGHT") d = "LEFT";
-            if(dir === "RIGHT" && d !== "LEFT") d = "RIGHT";
-        }
+  const playUrl = data.stream || data.hls || data.play;
+  const downloadUrl = data.download || data.url;
 
-        function draw() {
-            // Background grid
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Food
-            ctx.fillStyle = "#ff0055";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#ff0055";
-            ctx.fillRect(food.x, food.y, box, box);
+  const video = document.getElementById("video");
 
-            // Snake
-            snake.forEach((part, i) => {
-                ctx.fillStyle = i === 0 ? "#00f2ff" : "#008eb3";
-                ctx.shadowBlur = i === 0 ? 15 : 0;
-                ctx.fillRect(part.x, part.y, box, box);
-            });
-            ctx.shadowBlur = 0;
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(playUrl);
+    hls.attachMedia(video);
+  } else {
+    video.src = playUrl;
+  }
 
-            let hX = snake[0].x;
-            let hY = snake[0].y;
+  document.getElementById("downloadBtn").href = downloadUrl;
 
-            if(d === "UP") hY -= box;
-            if(d === "DOWN") hY += box;
-            if(d === "LEFT") hX -= box;
-            if(d === "RIGHT") hX += box;
+})
+.catch(()=>{
+  alert("Failed to load video");
+});
+</script>
 
-            // Collision Check
-            if(hX < 0 || hY < 0 || hX >= canvas.width || hY >= canvas.height || 
-               snake.some((p, i) => i!==0 && p.x === hX && p.y === hY)) {
-                gameOver();
-                return;
-            }
-
-            if(hX === food.x && hY === food.y) {
-                score++;
-                scoreEl.innerText = score;
-                spawnFood();
-            } else {
-                snake.pop();
-            }
-            snake.unshift({x: hX, y: hY});
-        }
-
-        function gameOver() {
-            clearInterval(gameLoop);
-            menu.style.display = "flex";
-            document.getElementById("title").innerText = "CRASHED!";
-            document.getElementById("start-btn").innerText = "RETRY";
-            if(score > highScore) {
-                highScore = score;
-                localStorage.setItem("snakeMobileBest", highScore);
-                highEl.innerText = highScore;
-            }
-        }
-
-        // Keyboard support also
-        document.addEventListener("keydown", e => {
-            if(e.key === "ArrowUp") setDir("UP");
-            if(e.key === "ArrowDown") setDir("DOWN");
-            if(e.key === "ArrowLeft") setDir("LEFT");
-            if(e.key === "ArrowRight") setDir("RIGHT");
-        });
-    </script>
 </body>
 </html>
