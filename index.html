@@ -1,146 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TeraPlayDown – Download</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Tera Professional Player</title>
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1e293b;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:Inter,system-ui,Arial;
-  background:#f2f4f8;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
-.card{
-  background:#fff;
-  width:100%;
-  max-width:420px;
-  padding:20px;
-  border-radius:22px;
-  box-shadow:0 20px 50px rgba(0,0,0,.15);
-  text-align:center;
-}
-h2{
-  margin:0 0 8px;
-  color:#3248f5;
-}
-p{
-  font-size:14px;
-  color:#555;
-}
-video{
-  width:100%;
-  border-radius:16px;
-  background:#000;
-  display:none;
-}
-.btn{
-  display:block;
-  margin-top:14px;
-  padding:16px;
-  border-radius:50px;
-  text-decoration:none;
-  font-size:18px;
-  font-weight:700;
-  color:#fff;
-}
-.download{
-  background:#16a34a;
-}
-.badge{
-  display:inline-block;
-  margin-top:10px;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-  background:#eef2ff;
-  color:#3248f5;
-}
-</style>
+        .main-card {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Player Styling */
+        .video-section {
+            background: #000;
+            position: relative;
+        }
+
+        /* Content Styling */
+        .content-padding {
+            padding: 25px;
+        }
+
+        .video-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .meta-item { font-size: 0.9rem; color: #94a3b8; }
+        .meta-item i { color: var(--accent); margin-right: 8px; }
+
+        /* Action Buttons */
+        .action-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 25px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-download { background: var(--primary); color: white; }
+        .btn-fast { background: #10b981; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        #loading-state {
+            padding: 100px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .quality-badge {
+            background: #f59e0b;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card" id="card">
-  <h2>⬇ Download Ready</h2>
-  <p>Video preview may not work on some browsers.</p>
-
-  <video id="video" controls></video>
-
-  <a id="downloadBtn" class="btn download" href="#">
-    ⬇ Download Video
-  </a>
-
-  <div class="badge">Fast & Secure</div>
+<div class="main-card" id="app">
+    <div id="loading-state">
+        <i class="fas fa-spinner fa-spin"></i> Fetching Video Content...
+    </div>
 </div>
 
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <script>
-const params = new URLSearchParams(window.location.search);
-const teraUrl = params.get("url");
+    async function loadVideo() {
+        const app = document.getElementById('app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('url');
 
-const card = document.getElementById("card");
-const video = document.getElementById("video");
-const downloadBtn = document.getElementById("downloadBtn");
+        if (!videoUrl) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">
+                <h2 style="color:#ef4444">No Link Provided!</h2>
+                <p>Please add <b>?url=TERABOX_LINK</b> to the end of your browser URL.</p>
+            </div>`;
+            return;
+        }
 
-if (!teraUrl) {
-  card.innerHTML = "<h3>❌ Invalid link</h3>";
-  throw new Error("No URL");
-}
+        try {
+            const apiUrl = `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
 
-/* 🔹 API ENDPOINT */
-const api =
-  "https://iteraplay.tera-api67.workers.dev/?url=" +
-  encodeURIComponent(teraUrl);
+            if (data.status === "success" && data.list.length > 0) {
+                const file = data.list[0];
+                
+                // Hum preference fast_stream_url (480p) ko denge agar available hai
+                const defaultStream = file.fast_stream_url['480p'] || file.stream_url;
 
-fetch(api)
-.then(res => res.json())
-.then(data => {
+                app.innerHTML = `
+                    <div class="video-section">
+                        <video id="player" playsinline controls data-poster="${file.thumbnail}">
+                            <source src="${defaultStream}" type="application/x-mpegURL">
+                        </video>
+                    </div>
 
-  const file = data?.list?.[0];
-  if (!file) throw new Error("No file");
+                    <div class="content-padding">
+                        <h1 class="video-title">${file.name}</h1>
+                        
+                        <div class="meta-grid">
+                            <div class="meta-item"><i class="fas fa-database"></i> ${file.size_formatted}</div>
+                            <div class="meta-item"><i class="fas fa-clock"></i> ${file.duration}</div>
+                            <div class="meta-item"><i class="fas fa-video"></i> Quality: ${file.quality}</div>
+                            <div class="meta-item"><i class="fas fa-folder"></i> ${file.folder}</div>
+                        </div>
 
-  /* ✅ Download ALWAYS works */
-  const downloadUrl =
-    file.fast_download_link || file.download_link;
+                        <div class="action-area">
+                            <a href="${file.download_link}" class="btn btn-download" target="_blank">
+                                <i class="fas fa-download"></i> Standard Download
+                            </a>
+                            <a href="${file.fast_download_link}" class="btn btn-fast" target="_blank">
+                                <i class="fas fa-bolt"></i> Fast Download (Direct)
+                            </a>
+                        </div>
+                    </div>
+                `;
 
-  downloadBtn.href = downloadUrl;
+                // HLS Support for streaming .m3u8 files
+                const video = document.getElementById('player');
+                const source = defaultStream;
+                
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(video);
+                }
 
-  /* ▶ Try preview (BEST-EFFORT only) */
-  const streams = file.fast_stream_url || {};
-  const firstStream = Object.values(streams)[0];
+                // Initialize Plyr
+                const player = new Plyr(video, {
+                    quality: {
+                        default: 480,
+                        options: [480, 360],
+                        forced: true,
+                        onChange: (e) => updateQuality(e, file)
+                    }
+                });
 
-  if (firstStream && Hls.isSupported()) {
-    video.style.display = "block";
+            } else {
+                app.innerHTML = `<div style="padding:50px; text-align:center;">Error: API did not return data.</div>`;
+            }
+        } catch (error) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">System Error: ${error.message}</div>`;
+        }
+    }
 
-    const hls = new Hls({
-      enableWorker: false,
-      lowLatencyMode: false
-    });
+    function updateQuality(newQuality, file) {
+        // Logic to switch between 360p and 480p from fast_stream_url
+        console.log("Quality changed to:", newQuality);
+    }
 
-    hls.loadSource(firstStream);
-    hls.attachMedia(video);
-
-    /* ❌ If stream fails → hide player silently */
-    hls.on(Hls.Events.ERROR, () => {
-      video.style.display = "none";
-    });
-  }
-
-})
-.catch(err => {
-  console.error(err);
-  card.innerHTML = `
-    <h3>⬇ Download Only</h3>
-    <p>Preview not available for this link.</p>
-    <a href="#" class="btn download">⬇ Download Video</a>
-  `;
-});
+    loadVideo();
 </script>
 
 </body>
