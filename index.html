@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-Tera Professional Player</title>
+    <title>Z-Tera Pro Player</title>
     
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -14,107 +14,98 @@
             --secondary: #1e293b;
             --accent: #06b6d4;
             --bg: #0f172a;
+            --skeleton: #2d3748;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg);
             color: #f8fafc;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: center;
         }
 
         .main-card {
             width: 100%;
-            max-width: 1000px;
+            max-width: 900px;
             background: var(--secondary);
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
 
-        /* Player Styling */
+        /* Video Section & Auto Rotate Fix */
         .video-section {
             background: #000;
-            position: relative;
+            aspect-ratio: 16 / 9;
+            width: 100%;
         }
 
-        /* Content Styling */
-        .content-padding {
-            padding: 25px;
+        /* --- Skeleton Loading Animation --- */
+        .skeleton {
+            background: linear-gradient(90deg, var(--skeleton) 25%, #3e4a5d 50%, var(--skeleton) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
         }
 
-        .video-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #fff;
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
+        .load-player { width: 100%; height: 100%; }
+        .load-title { height: 30px; width: 70%; margin: 25px; border-radius: 5px; }
+        .load-meta { height: 60px; width: calc(100% - 50px); margin: 0 25px 20px 25px; border-radius: 8px; }
+        .load-btns { display: flex; gap: 15px; padding: 0 25px 25px; }
+        .load-btn { height: 50px; flex: 1; border-radius: 10px; }
+
+        /* --- Page Content --- */
+        .content-padding { padding: 25px; }
+        .video-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; color: #fff; line-height: 1.3; }
+        
         .meta-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 25px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.03);
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .meta-item { font-size: 0.9rem; color: #94a3b8; }
-        .meta-item i { color: var(--accent); margin-right: 8px; }
+        .meta-item { font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; }
+        .meta-item i { color: var(--accent); margin-right: 10px; width: 16px; }
 
-        /* Action Buttons */
-        .action-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
+        .action-area { display: flex; flex-wrap: wrap; gap: 12px; }
         .btn {
-            flex: 1;
-            min-width: 200px;
-            padding: 14px 25px;
-            border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
+            flex: 1; min-width: 160px; padding: 14px; border-radius: 12px;
+            text-align: center; text-decoration: none; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s; border: none; font-size: 0.95rem;
         }
 
         .btn-download { background: var(--primary); color: white; }
         .btn-fast { background: #10b981; color: white; }
-        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn:active { transform: scale(0.96); }
 
-        #loading-state {
-            padding: 100px;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-
-        .quality-badge {
-            background: #f59e0b;
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            vertical-align: middle;
-        }
+        /* Fullscreen Customization */
+        :full-screen video { width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
 
 <div class="main-card" id="app">
-    <div id="loading-state">
-        <i class="fas fa-spinner fa-spin"></i> Fetching Video Content...
+    <div class="skeleton-wrapper">
+        <div class="video-section skeleton load-player"></div>
+        <div class="skeleton load-title"></div>
+        <div class="skeleton load-meta"></div>
+        <div class="load-btns">
+            <div class="skeleton load-btn"></div>
+            <div class="skeleton load-btn"></div>
+        </div>
     </div>
 </div>
 
@@ -130,7 +121,7 @@
         if (!videoUrl) {
             app.innerHTML = `<div style="padding:50px; text-align:center;">
                 <h2 style="color:#ef4444">No Link Provided!</h2>
-                <p>Please add <b>?url=TERABOX_LINK</b> to the end of your browser URL.</p>
+                <p>Add ?url=TERABOX_LINK to the URL.</p>
             </div>`;
             return;
         }
@@ -142,69 +133,69 @@
 
             if (data.status === "success" && data.list.length > 0) {
                 const file = data.list[0];
-                
-                // Hum preference fast_stream_url (480p) ko denge agar available hai
-                const defaultStream = file.fast_stream_url['480p'] || file.stream_url;
+                const streamSource = file.fast_stream_url['480p'] || file.stream_url;
 
                 app.innerHTML = `
                     <div class="video-section">
-                        <video id="player" playsinline controls data-poster="${file.thumbnail}">
-                            <source src="${defaultStream}" type="application/x-mpegURL">
+                        <video id="player" playsinline controls crossorigin data-poster="${file.thumbnail}">
+                            <source src="${streamSource}" type="application/x-mpegURL">
                         </video>
                     </div>
 
                     <div class="content-padding">
                         <h1 class="video-title">${file.name}</h1>
-                        
                         <div class="meta-grid">
-                            <div class="meta-item"><i class="fas fa-database"></i> ${file.size_formatted}</div>
+                            <div class="meta-item"><i class="fas fa-hdd"></i> ${file.size_formatted}</div>
                             <div class="meta-item"><i class="fas fa-clock"></i> ${file.duration}</div>
-                            <div class="meta-item"><i class="fas fa-video"></i> Quality: ${file.quality}</div>
-                            <div class="meta-item"><i class="fas fa-folder"></i> ${file.folder}</div>
+                            <div class="meta-item"><i class="fas fa-bolt"></i> ${file.quality}</div>
+                            <div class="meta-item"><i class="fas fa-folder-open"></i> ${file.folder}</div>
                         </div>
-
                         <div class="action-area">
                             <a href="${file.download_link}" class="btn btn-download" target="_blank">
-                                <i class="fas fa-download"></i> Standard Download
+                                <i class="fas fa-cloud-download-alt"></i> Download
                             </a>
                             <a href="${file.fast_download_link}" class="btn btn-fast" target="_blank">
-                                <i class="fas fa-bolt"></i> Fast Download (Direct)
+                                <i class="fas fa-bolt"></i> Fast Direct
                             </a>
                         </div>
                     </div>
                 `;
 
-                // HLS Support for streaming .m3u8 files
                 const video = document.getElementById('player');
-                const source = defaultStream;
                 
+                // Initialize Plyr
+                const player = new Plyr(video, {
+                    settings: ['quality', 'speed'],
+                    invertTime: false,
+                    displayDuration: true
+                });
+
+                // HLS Support
                 if (Hls.isSupported()) {
                     const hls = new Hls();
-                    hls.loadSource(source);
+                    hls.loadSource(streamSource);
                     hls.attachMedia(video);
                 }
 
-                // Initialize Plyr
-                const player = new Plyr(video, {
-                    quality: {
-                        default: 480,
-                        options: [480, 360],
-                        forced: true,
-                        onChange: (e) => updateQuality(e, file)
+                // --- AUTO ROTATE LOGIC ---
+                player.on('enterfullscreen', () => {
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(err => console.log("Orientation lock ignored"));
+                    }
+                });
+
+                player.on('exitfullscreen', () => {
+                    if (screen.orientation && screen.orientation.unlock) {
+                        screen.orientation.unlock();
                     }
                 });
 
             } else {
-                app.innerHTML = `<div style="padding:50px; text-align:center;">Error: API did not return data.</div>`;
+                app.innerHTML = `<div style="padding:50px; text-align:center;">Failed to load API data.</div>`;
             }
         } catch (error) {
-            app.innerHTML = `<div style="padding:50px; text-align:center;">System Error: ${error.message}</div>`;
+            app.innerHTML = `<div style="padding:50px; text-align:center;">Error: ${error.message}</div>`;
         }
-    }
-
-    function updateQuality(newQuality, file) {
-        // Logic to switch between 360p and 480p from fast_stream_url
-        console.log("Quality changed to:", newQuality);
     }
 
     loadVideo();
