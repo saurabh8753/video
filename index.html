@@ -5,23 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Professional Player</title>
 
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 :root{
   --primary:#3b82f6;
   --secondary:#1e293b;
-  --accent:#06b6d4;
   --bg:#0f172a;
 }
 
 body{
   margin:0;
   padding:20px;
-  font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
   background:var(--bg);
-  color:#f8fafc;
+  font-family:Segoe UI,system-ui;
+  color:#fff;
   display:flex;
   justify-content:center;
 }
@@ -36,7 +35,25 @@ body{
 }
 
 .video-section{
+  position:relative;
   background:#000;
+}
+
+/* 🔥 BUFFERING SPINNER */
+.buffering{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.35);
+  z-index:10;
+  display:none;
+}
+
+.buffering i{
+  font-size:48px;
+  color:#fff;
 }
 
 .content-padding{
@@ -44,8 +61,7 @@ body{
 }
 
 .video-title{
-  font-size:1.5rem;
-  font-weight:600;
+  font-size:1.4rem;
   margin-bottom:10px;
 }
 
@@ -53,10 +69,10 @@ body{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:15px;
-  margin-bottom:25px;
   background:rgba(255,255,255,.05);
   padding:15px;
-  border-radius:10px;
+  border-radius:12px;
+  margin-bottom:20px;
 }
 
 .meta-item{
@@ -64,72 +80,35 @@ body{
   color:#94a3b8;
 }
 .meta-item i{
-  color:var(--accent);
-  margin-right:8px;
+  color:#38bdf8;
+  margin-right:6px;
 }
 
 .action-area{
   display:flex;
-  flex-wrap:wrap;
   gap:15px;
+  flex-wrap:wrap;
 }
 
 .btn{
   flex:1;
   min-width:200px;
-  padding:14px 25px;
+  padding:14px;
   border-radius:12px;
-  font-weight:bold;
   text-decoration:none;
+  font-weight:600;
   display:flex;
   align-items:center;
   justify-content:center;
   gap:10px;
-  transition:.3s;
 }
 
-.btn-download{
-  background:var(--primary);
-  color:#fff;
-}
-.btn-fast{
-  background:#10b981;
-  color:#fff;
-}
-.btn:hover{
-  transform:translateY(-2px);
-  opacity:.9;
-}
+.btn-download{background:#3b82f6;color:#fff}
+.btn-fast{background:#10b981;color:#fff}
 
-/* 🔥 AD SECTION */
-.ad-wrapper{
-  margin-top:25px;
-  padding:16px;
-  background:rgba(255,255,255,.04);
-  border-radius:14px;
-  text-align:center;
-}
-
-.ad-label{
-  font-size:12px;
-  color:#94a3b8;
-  margin-bottom:8px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
-
-#ad-frame{
-  width:100%;
-  height:90px;
-  border:0;
-  border-radius:10px;
-  background:#000;
-}
-
-#loading-state{
+#loading{
   padding:100px;
   text-align:center;
-  font-size:1.2rem;
 }
 </style>
 </head>
@@ -137,8 +116,8 @@ body{
 <body>
 
 <div class="main-card" id="app">
-  <div id="loading-state">
-    <i class="fas fa-spinner fa-spin"></i> Fetching Video Content...
+  <div id="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading Video...
   </div>
 </div>
 
@@ -148,81 +127,86 @@ body{
 <script>
 async function loadVideo(){
   const app=document.getElementById("app");
-  const urlParams=new URLSearchParams(window.location.search);
-  const videoUrl=urlParams.get("url");
+  const url=new URLSearchParams(location.search).get("url");
 
-  if(!videoUrl){
-    app.innerHTML=`<div style="padding:50px;text-align:center">
-      <h2 style="color:#ef4444">No Link Provided!</h2>
-      <p>Add <b>?url=TERABOX_LINK</b> in URL</p>
-    </div>`;
+  if(!url){
+    app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
     return;
   }
 
-  try{
-    const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-    const res=await fetch(api);
-    const data=await res.json();
+  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(url)}`;
+  const res=await fetch(api);
+  const data=await res.json();
 
-    if(data.status==="success" && data.list.length){
-      const file=data.list[0];
-      const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+  if(data.status!=="success") return;
 
-      app.innerHTML=`
-      <div class="video-section">
-        <video id="player" controls playsinline poster="${file.thumbnail}">
-          <source src="${stream}" type="application/x-mpegURL">
-        </video>
-      </div>
+  const file=data.list[0];
+  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
-      <div class="content-padding">
-        <h1 class="video-title">${file.name}</h1>
+  app.innerHTML=`
+  <div class="video-section">
+    <div class="buffering" id="buffering">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <video id="player" playsinline controls poster="${file.thumbnail}">
+      <source src="${stream}" type="application/x-mpegURL">
+    </video>
+  </div>
 
-        <div class="meta-grid">
-          <div class="meta-item"><i class="fas fa-database"></i>${file.size_formatted}</div>
-          <div class="meta-item"><i class="fas fa-clock"></i>${file.duration}</div>
-          <div class="meta-item"><i class="fas fa-video"></i>${file.quality}</div>
-          <div class="meta-item"><i class="fas fa-folder"></i>${file.folder}</div>
-        </div>
+  <div class="content-padding">
+    <div class="video-title">${file.name}</div>
 
-        <div class="action-area">
-          <a href="${file.download_link}" target="_blank" class="btn btn-download">
-            <i class="fas fa-download"></i> Standard Download
-          </a>
-          <a href="${file.fast_download_link}" target="_blank" class="btn btn-fast">
-            <i class="fas fa-bolt"></i> Fast Download
-          </a>
-        </div>
+    <div class="meta-grid">
+      <div class="meta-item"><i class="fas fa-database"></i>${file.size_formatted}</div>
+      <div class="meta-item"><i class="fas fa-clock"></i>${file.duration}</div>
+      <div class="meta-item"><i class="fas fa-video"></i>${file.quality}</div>
+      <div class="meta-item"><i class="fas fa-folder"></i>${file.folder}</div>
+    </div>
 
-        <!-- 🔥 AD BELOW FAST DOWNLOAD -->
-        <div class="ad-wrapper">
-          <div class="ad-label">Advertisement</div>
+    <div class="action-area">
+      <a class="btn btn-download" href="${file.download_link}" target="_blank">
+        <i class="fas fa-download"></i> Download
+      </a>
+      <a class="btn btn-fast" href="${file.fast_download_link}" target="_blank">
+        <i class="fas fa-bolt"></i> Fast Download
+      </a>
+    </div>
+  </div>
+  `;
 
-          <!-- Replace iframe with Adsense / Adsterra / Propeller -->
-          <iframe 
-            id="ad-frame"
-            src="https://example.com/ad.html"
-            loading="lazy">
-          </iframe>
-        </div>
+  const video=document.getElementById("player");
+  const loader=document.getElementById("buffering");
 
-      </div>`;
-
-      const video=document.getElementById("player");
-
-      if(Hls.isSupported()){
-        const hls=new Hls();
-        hls.loadSource(stream);
-        hls.attachMedia(video);
-      }
-
-      new Plyr(video,{});
-    }else{
-      app.innerHTML="<div style='padding:40px;text-align:center'>API Error</div>";
-    }
-  }catch(e){
-    app.innerHTML="<div style='padding:40px;text-align:center'>System Error</div>";
+  /* HLS */
+  if(Hls.isSupported()){
+    const hls=new Hls();
+    hls.loadSource(stream);
+    hls.attachMedia(video);
   }
+
+  /* Plyr – YouTube style seek */
+  const player=new Plyr(video,{
+    seekTime:10,
+    keyboard:{focused:true,global:true}
+  });
+
+  /* Buffering spinner */
+  video.addEventListener("waiting",()=>loader.style.display="flex");
+  video.addEventListener("playing",()=>loader.style.display="none");
+  video.addEventListener("canplay",()=>loader.style.display="none");
+
+  /* 🔥 AUTO ROTATE ON FULLSCREEN */
+  document.addEventListener("fullscreenchange",()=>{
+    if(document.fullscreenElement){
+      if(screen.orientation?.lock){
+        screen.orientation.lock("landscape").catch(()=>{});
+      }
+    }else{
+      if(screen.orientation?.unlock){
+        screen.orientation.unlock();
+      }
+    }
+  });
 }
 
 loadVideo();
