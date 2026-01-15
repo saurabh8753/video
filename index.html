@@ -3,85 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZTERA – Professional Video Player</title>
+<title>ZTERA Player</title>
 
-<!-- Player -->
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<!-- Player libs -->
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
 :root{
-  --primary:#3248f5;
-  --bg:#f3f6ff;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --radius:18px;
+  --primary:#2563eb;
+  --bg:#0b1020;
+  --card:#111827;
+  --soft:#1f2937;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --radius:14px;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont;
-  background:linear-gradient(180deg,#eef2ff,#f8f9ff);
+  background:linear-gradient(180deg,#0b1020,#0f172a);
+  font-family:Inter,system-ui;
   color:var(--text);
 }
 
 /* ===== Player ===== */
-.video-wrap{
-  max-width:720px;
+.player-shell{
+  max-width:960px;
   margin:18px auto 0;
   background:#000;
-  border-radius:22px;
+  border-radius:20px;
   overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  box-shadow:0 30px 70px rgba(0,0,0,.6);
 }
 
-/* ===== Card ===== */
-.card{
-  max-width:720px;
+/* ===== Content ===== */
+.info-wrap{
+  max-width:960px;
   margin:18px auto;
-  background:var(--card);
-  border-radius:var(--radius);
   padding:18px;
-  box-shadow:0 10px 30px rgba(15,23,42,.08);
+  background:var(--card);
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.4);
 }
 
 .title{
-  font-size:18px;
+  font-size:20px;
   font-weight:700;
-  line-height:1.4;
   margin-bottom:14px;
+  line-height:1.4;
 }
 
-/* ===== Meta ===== */
-.meta-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+/* ===== Stats ===== */
+.stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
   margin-bottom:18px;
 }
 
-.meta{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:#f8fafc;
-  padding:12px;
-  border-radius:14px;
-  font-size:14px;
-  color:#334155;
-}
-.meta i{
-  color:var(--primary);
+.stat{
+  background:var(--soft);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:13px;
+  color:var(--muted);
 }
 
-/* ===== Buttons ===== */
+/* ===== Actions ===== */
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -91,47 +83,47 @@ body{
 .btn{
   padding:14px;
   border-radius:16px;
-  text-decoration:none;
   font-weight:700;
   text-align:center;
+  text-decoration:none;
   transition:.25s;
 }
 
-.btn-download{
-  background:linear-gradient(135deg,var(--primary),#1d4ed8);
+.btn-primary{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
   color:#fff;
 }
-.btn-download:hover{
+.btn-primary:hover{
   transform:translateY(-2px);
-  box-shadow:0 12px 25px rgba(50,72,245,.35);
+  box-shadow:0 12px 30px rgba(37,99,235,.5);
 }
 
-.btn-fast{
-  background:#ecfeff;
-  color:#0369a1;
-  border:1px solid #bae6fd;
+.btn-outline{
+  border:1px solid #334155;
+  color:#c7d2fe;
 }
-.btn-fast:hover{
-  background:#e0f2fe;
+.btn-outline:hover{
+  background:#1e293b;
 }
 
 /* ===== Ad ===== */
-.ad-box{
-  max-width:720px;
-  margin:22px auto;
-  padding:12px;
-  background:#fff;
+.ad-zone{
+  max-width:960px;
+  margin:24px auto;
+  background:#ffffff;
+  padding:14px;
   border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,.06);
   text-align:center;
 }
 
 /* ===== Mobile ===== */
-@media(max-width:520px){
-  .video-wrap,.card,.ad-box{
-    border-radius:16px;
+@media(max-width:600px){
+  .player-shell,
+  .info-wrap,
+  .ad-zone{
     margin-left:12px;
     margin-right:12px;
+    border-radius:16px;
   }
 }
 </style>
@@ -139,22 +131,23 @@ body{
 
 <body>
 
-<div id="app" style="padding:40px;text-align:center;color:#64748b">
+<div id="app" style="padding:40px;text-align:center;color:#94a3b8">
   Loading video…
 </div>
 
-<!-- ✅ BODY AD -->
-<div class="ad-box">
+<!-- ✅ AD (EXACT SAME PLACE – BODY SECTION) -->
+<div class="ad-zone">
   <script async data-cfasync="false"
     src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
   </script>
   <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
 </div>
+<!-- ✅ AD END -->
 
 <script>
 async function init(){
-  const app = document.getElementById("app");
-  const url = new URLSearchParams(location.search).get("url");
+  const app=document.getElementById("app");
+  const url=new URLSearchParams(location.search).get("url");
 
   if(!url){
     app.innerHTML="No video URL";
@@ -162,45 +155,51 @@ async function init(){
   }
 
   try{
-    const res = await fetch(
+    const res=await fetch(
       `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(url)}`
     );
-    const data = await res.json();
+    const data=await res.json();
 
     if(data.status==="success" && data.list.length){
-      const f = data.list[0];
-      const stream = f.fast_stream_url?.['480p'] || f.stream_url;
+      const f=data.list[0];
+      const stream=f.fast_stream_url?.["480p"] || f.stream_url;
 
       app.innerHTML=`
-        <div class="video-wrap">
-          <video id="player" playsinline controls poster="${f.thumbnail}">
+        <div class="player-shell">
+          <video id="player" controls playsinline poster="${f.thumbnail}">
             <source src="${stream}" type="application/x-mpegURL">
           </video>
         </div>
 
-        <div class="card">
+        <div class="info-wrap">
           <div class="title">${f.name}</div>
 
-          <div class="meta-grid">
-            <div class="meta"><i class="fa-solid fa-database"></i>${f.size_formatted}</div>
-            <div class="meta"><i class="fa-solid fa-clock"></i>${f.duration}</div>
-            <div class="meta"><i class="fa-solid fa-signal"></i>${f.quality}</div>
-            <div class="meta"><i class="fa-solid fa-folder"></i>${f.folder}</div>
+          <div class="stats">
+            <div class="stat">📦 ${f.size_formatted}</div>
+            <div class="stat">⏱ ${f.duration}</div>
+            <div class="stat">📶 ${f.quality}</div>
+            <div class="stat">📁 ${f.folder}</div>
           </div>
 
           <div class="actions">
-            <a class="btn btn-download" href="${f.download_link}" target="_blank">
-              <i class="fa-solid fa-download"></i> Download
+            <a class="btn btn-primary" href="${f.download_link}" target="_blank">
+              Download
             </a>
-            <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">
-              <i class="fa-solid fa-bolt"></i> Fast Speed
+            <a class="btn btn-outline" href="${f.fast_download_link}" target="_blank">
+              Fast Speed
             </a>
           </div>
         </div>
       `;
 
       const video=document.getElementById("player");
-      const player=new Plyr(video,{ratio:"16:9"});
+      const player=new Plyr(video,{
+        ratio:"16:9",
+        controls:[
+          'play-large','play','progress','current-time',
+          'mute','volume','settings','fullscreen'
+        ]
+      });
 
       if(Hls.isSupported()){
         const hls=new Hls();
