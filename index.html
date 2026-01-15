@@ -15,8 +15,6 @@
             --secondary: #1e293b;
             --accent: #06b6d4;
             --bg: #0b0f1a;
-            --skeleton: #1e293b;
-            --shimmer: #334155;
         }
 
         body {
@@ -39,37 +37,50 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* --- Custom Professional Loading --- */
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #cbd5e1;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         /* Video Section */
         .video-section {
             background: #000;
             aspect-ratio: 16 / 9;
             width: 100%;
-            position: relative;
         }
-
-        /* --- Advanced Shimmer Loading --- */
-        .shimmer-wrapper { padding: 20px; }
-        
-        .shimmer {
-            background: var(--skeleton);
-            background-image: linear-gradient(to right, var(--skeleton) 0%, var(--shimmer) 20%, var(--skeleton) 40%, var(--skeleton) 100%);
-            background-repeat: no-repeat;
-            background-size: 800px 100%;
-            display: inline-block;
-            position: relative;
-            animation: shimmer-effect 1.5s linear infinite forwards;
-            border-radius: 8px;
-        }
-
-        @keyframes shimmer-effect {
-            0% { background-position: -468px 0; }
-            100% { background-position: 468px 0; }
-        }
-
-        .sh-video { width: 100%; height: 100%; border-radius: 0; }
-        .sh-title { height: 32px; width: 80%; margin-bottom: 20px; }
-        .sh-meta { height: 80px; width: 100%; margin-bottom: 20px; }
-        .sh-btn { height: 50px; width: 100%; border-radius: 12px; }
 
         /* --- UI Elements --- */
         .content-padding { padding: 20px; }
@@ -94,36 +105,30 @@
             flex: 1; min-width: 150px; padding: 14px; border-radius: 14px;
             text-align: center; text-decoration: none; font-weight: 700;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: none; font-size: 0.9rem;
+            transition: 0.2s; border: none; font-size: 0.9rem;
         }
         .btn-download { background: #2563eb; color: white; }
         .btn-fast { background: #059669; color: white; }
         .btn:active { transform: scale(0.95); }
 
-        /* --- AD CONTAINER --- */
+        /* --- AD CONTAINER (Bottom) --- */
         .ad-container {
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
             text-align: center;
-            min-height: 100px;
-            border: 1px dashed rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .ad-label { font-size: 10px; color: #475569; text-transform: uppercase; margin-bottom: 8px; display: block;}
+        .ad-label { font-size: 10px; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: block;}
     </style>
 </head>
 <body>
 
 <div class="main-card" id="app">
-    <div class="sh-video shimmer"></div>
-    <div class="shimmer-wrapper">
-        <div class="sh-title shimmer"></div>
-        <div class="sh-meta shimmer"></div>
-        <div class="action-area">
-            <div class="sh-btn shimmer"></div>
-            <div class="sh-btn shimmer"></div>
-        </div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading Video Test...</div>
     </div>
 </div>
 
@@ -139,7 +144,7 @@
         if (!videoUrl) {
             app.innerHTML = `<div style="padding:40px; text-align:center;">
                 <i class="fas fa-exclamation-triangle fa-3x" style="color:#f59e0b; margin-bottom:15px;"></i>
-                <h2>URL Not Found</h2><p>Please provide a Terabox link.</p>
+                <h2>URL Missing</h2><p>Please provide a Terabox link.</p>
             </div>`;
             return;
         }
@@ -162,15 +167,10 @@
                     <div class="content-padding">
                         <h1 class="video-title">${f.name}</h1>
                         
-                        <div class="ad-container">
-                            <span class="ad-label">Advertisement</span>
-                            <script async="async" data-cfasync="false" src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
-                            <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-                        </div>
                         <div class="meta-grid">
                             <div class="meta-item"><i class="fas fa-database"></i> ${f.size_formatted}</div>
                             <div class="meta-item"><i class="fas fa-clock"></i> ${f.duration}</div>
-                            <div class="meta-item"><i class="fas fa-signal"></i> Quality: ${f.quality}</div>
+                            <div class="meta-item"><i class="fas fa-signal"></i> ${f.quality}</div>
                             <div class="meta-item"><i class="fas fa-folder"></i> ${f.folder}</div>
                         </div>
 
@@ -182,14 +182,17 @@
                                 <i class="fas fa-bolt"></i> Fast Download
                             </a>
                         </div>
+
+                        <div class="ad-container">
+                            <span class="ad-label">Advertisement</span>
+                            <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+                            <script async="async" data-cfasync="false" src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
+                        </div>
                     </div>
                 `;
 
                 const video = document.getElementById('player');
-                const player = new Plyr(video, {
-                    tooltips: { controls: true, seek: true },
-                    ratio: '16:9'
-                });
+                const player = new Plyr(video, { ratio: '16:9' });
 
                 if (Hls.isSupported()) {
                     const hls = new Hls();
@@ -199,17 +202,17 @@
 
                 // Auto Rotate Fullscreen
                 player.on('enterfullscreen', () => {
-                    screen.orientation.lock('landscape').catch(() => {});
+                    if(screen.orientation) screen.orientation.lock('landscape').catch(() => {});
                 });
                 player.on('exitfullscreen', () => {
-                    screen.orientation.unlock();
+                    if(screen.orientation) screen.orientation.unlock();
                 });
 
             } else {
-                app.innerHTML = `<div style="padding:40px; text-align:center;">Error: API failed to respond.</div>`;
+                app.innerHTML = `<div style="padding:40px; text-align:center;">Error: API Response Failed</div>`;
             }
         } catch (e) {
-            app.innerHTML = `<div style="padding:40px; text-align:center;">Error: ${e.message}</div>`;
+            app.innerHTML = `<div style="padding:40px; text-25align:center;">Error: ${e.message}</div>`;
         }
     }
     init();
