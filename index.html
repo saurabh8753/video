@@ -1,225 +1,176 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>ZTERA Player</title>  
-  
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />  
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>  
-  
-<style>  
-body{  
-    margin:0;  
-    font-family:Inter, Arial, sans-serif;  
-    background:#eef3ff;  
-}  
-  
-.video-section{  
-    width:100%;  
-    max-width:720px;  
-    margin:16px auto;  
-    position:relative;  
-}  
-  
-video{  
-    width:100%;  
-    border-radius:14px;  
-    background:#000;  
-}  
-  
-/* ===== BUFFERING SPINNER ===== */  
-.spinner-wrap{  
-    position:absolute;  
-    inset:0;  
-    display:none;  
-    align-items:center;  
-    justify-content:center;  
-    background:rgba(0,0,0,.15);  
-    border-radius:14px;  
-    z-index:5;  
-}  
-.spinner{  
-    width:46px;  
-    height:46px;  
-    border:4px solid rgba(255,255,255,.4);  
-    border-top-color:#fff;  
-    border-radius:50%;  
-    animation:spin .8s linear infinite;  
-}  
-@keyframes spin{to{transform:rotate(360deg)}}  
-  
-/* ===== SEEK OVERLAY ===== */  
-.seek-overlay{  
-    position:absolute;  
-    top:50%;  
-    left:50%;  
-    transform:translate(-50%,-50%) scale(.9);  
-    background:rgba(0,0,0,.75);  
-    color:#fff;  
-    padding:14px 18px;  
-    border-radius:999px;  
-    font-size:18px;  
-    font-weight:700;  
-    opacity:0;  
-    pointer-events:none;  
-    z-index:6;  
-    transition:.25s ease;  
-}  
-.seek-overlay.show{  
-    opacity:1;  
-    transform:translate(-50%,-50%) scale(1);  
-}  
-  
-/* ===== TAP ZONES ===== */  
-.tap-zone{  
-    position:absolute;  
-    top:0;  
-    bottom:0;  
-    width:50%;  
-    z-index:4;  
-}  
-.tap-left{left:0}  
-.tap-right{right:0}  
-  
-.content-padding{  
-    max-width:720px;  
-    margin:auto;  
-    padding:16px;  
-}  
-  
-.video-title{  
-    font-size:18px;  
-    font-weight:700;  
-    line-height:1.4;  
-    margin-bottom:12px;  
-    word-break:break-word;  
-    display:-webkit-box;  
-    -webkit-line-clamp:2;  
-    -webkit-box-orient:vertical;  
-    overflow:hidden;  
-}  
-  
-.meta-grid{  
-    display:grid;  
-    grid-template-columns:repeat(2,1fr);  
-    gap:10px;  
-    margin:16px 0;  
-}  
-.meta-item{  
-    background:#fff;  
-    padding:10px;  
-    border-radius:12px;  
-    font-size:14px;  
-}  
-  
-.action-area{  
-    display:flex;  
-    gap:12px;  
-}  
-.btn{  
-    flex:1;  
-    padding:14px;  
-    border-radius:14px;  
-    text-decoration:none;  
-    font-weight:600;  
-    text-align:center;  
-}  
-.btn-download{background:#3248f5;color:#fff;}  
-.btn-fast{background:#16a34a;color:#fff;}  
-</style>  
-</head>  
-  
-<body>  
-  
-<div id="app" style="min-height:60vh;text-align:center;padding:40px;">  
-    Loading...  
-</div>  
-  
-<!-- AD (UNCHANGED) -->  
-<div style="max-width:720px;margin:20px auto;text-align:center;">  
-<script async data-cfasync="false"  
-src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>  
-<div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>  
-</div>  
-  
-<script>  
-async function init(){  
-const app=document.getElementById("app");  
-const videoUrl=new URLSearchParams(location.search).get("url");  
-if(!videoUrl){app.innerHTML="No video URL";return;}  
-  
-const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);  
-const data=await res.json();  
-  
-if(data.status==="success"){  
-const f=data.list[0];  
-const stream=f.fast_stream_url?.["480p"]||f.stream_url;  
-  
-app.innerHTML=`  
-<div class="video-section">  
-  
-<div class="spinner-wrap" id="spinner"><div class="spinner"></div></div>  
-<div class="seek-overlay" id="seekText"></div>  
-  
-<div class="tap-zone tap-left"></div>  
-<div class="tap-zone tap-right"></div>  
-  
-<video id="player" playsinline controls poster="${f.thumbnail}">  
-<source src="${stream}" type="application/x-mpegURL">  
-</video>  
-</div>  
-  
-<div class="content-padding">  
-<h2 class="video-title">${f.name}</h2>  
-<div class="meta-grid">  
-<div class="meta-item">💾 ${f.size_formatted}</div>  
-<div class="meta-item">⏱ ${f.duration}</div>  
-<div class="meta-item">📶 ${f.quality}</div>  
-<div class="meta-item">📁 ${f.folder}</div>  
-</div>  
-<div class="action-area">  
-<a class="btn btn-download" href="${f.download_link}" target="_blank">Download</a>  
-<a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">Fast Speed</a>  
-</div>  
-</div>`;  
-  
-const video=document.getElementById("player");  
-const spinner=document.getElementById("spinner");  
-const seekText=document.getElementById("seekText");  
-  
-new Plyr(video,{ratio:"16:9"});  
-  
-if(Hls.isSupported()){  
-const hls=new Hls();  
-hls.loadSource(stream);  
-hls.attachMedia(video);  
-}  
-  
-video.addEventListener("waiting",()=>spinner.style.display="flex");  
-video.addEventListener("playing",()=>spinner.style.display="none");  
-  
-/* 🔥 Double Tap Seek with Animation */  
-let lastTap=0;  
-function seek(dir){  
-const now=Date.now();  
-if(now-lastTap<300){  
-video.currentTime+=dir*10;  
-seekText.textContent=dir>0?"10s »":"« 10s";  
-seekText.classList.add("show");  
-setTimeout(()=>seekText.classList.remove("show"),500);  
-}  
-lastTap=now;  
-}  
-  
-document.querySelector(".tap-left").addEventListener("touchend",()=>seek(-1));  
-document.querySelector(".tap-right").addEventListener("touchend",()=>seek(1));  
-  
-}  
-}  
-init();  
-</script>  
-  
-</body>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTERA Player</title>
+
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Inter, Arial, sans-serif;
+  background:#eef3ff;
+}
+
+.video-section{
+  width:100%;
+  max-width:720px;
+  margin:16px auto;
+}
+
+video{
+  width:100%;
+  background:#000;
+  border-radius:14px;
+}
+
+.content-padding{
+  max-width:720px;
+  margin:auto;
+  padding:16px;
+}
+
+.video-title{
+  font-size:18px;
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:12px;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.meta-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:16px 0;
+}
+
+.meta-item{
+  background:#fff;
+  padding:10px;
+  border-radius:12px;
+  font-size:14px;
+}
+
+.action-area{
+  display:flex;
+  gap:12px;
+}
+
+.btn{
+  flex:1;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+  text-decoration:none;
+  font-weight:600;
+}
+
+.btn-download{background:#3248f5;color:#fff;}
+.btn-fast{background:#16a34a;color:#fff;}
+</style>
+</head>
+
+<body>
+
+<div id="app" style="min-height:60vh;text-align:center;padding:40px;">
+  Loading…
+</div>
+
+<!-- ✅ AD SECTION (VIDEO SE FULLY ALAG) -->
+<div style="max-width:720px;margin:20px auto;text-align:center;">
+  <script async data-cfasync="false"
+    src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
+  </script>
+  <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+</div>
+
+<script>
+(async function init(){
+  const app = document.getElementById("app");
+  const videoUrl = new URLSearchParams(location.search).get("url");
+
+  if(!videoUrl){
+    app.innerHTML = "No video URL found";
+    return;
+  }
+
+  try{
+    const res = await fetch(
+      `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`
+    );
+    const data = await res.json();
+
+    if(data.status !== "success" || !data.list.length){
+      app.innerHTML = "API Error";
+      return;
+    }
+
+    const f = data.list[0];
+    const stream = f.fast_stream_url?.["480p"] || f.stream_url;
+
+    app.innerHTML = `
+      <div class="video-section">
+        <video
+          id="player"
+          controls
+          playsinline
+          webkit-playsinline
+          poster="${f.thumbnail}">
+          <source src="${stream}" type="application/x-mpegURL">
+        </video>
+      </div>
+
+      <div class="content-padding">
+        <h2 class="video-title">${f.name}</h2>
+
+        <div class="meta-grid">
+          <div class="meta-item">💾 ${f.size_formatted}</div>
+          <div class="meta-item">⏱ ${f.duration}</div>
+          <div class="meta-item">📶 ${f.quality}</div>
+          <div class="meta-item">📁 ${f.folder}</div>
+        </div>
+
+        <div class="action-area">
+          <a class="btn btn-download" href="${f.download_link}" target="_blank">Download</a>
+          <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">Fast Speed</a>
+        </div>
+      </div>
+    `;
+
+    const video = document.getElementById("player");
+
+    // ✅ ONLY SAFE PLAYER INIT (NO CLICK LISTENERS)
+    const player = new Plyr(video, { ratio: "16:9" });
+
+    if(Hls.isSupported()){
+      const hls = new Hls();
+      hls.loadSource(stream);
+      hls.attachMedia(video);
+    }
+
+    // Optional orientation lock (no redirect risk)
+    player.on("enterfullscreen",()=>{
+      screen.orientation?.lock("landscape").catch(()=>{});
+    });
+    player.on("exitfullscreen",()=>{
+      screen.orientation?.unlock?.();
+    });
+
+  }catch(e){
+    app.innerHTML = "Error: " + e.message;
+  }
+})();
+</script>
+
+</body>
 </html>
