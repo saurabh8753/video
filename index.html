@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,14 +37,13 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* --- Custom Professional Loading --- */
+        /* Loading Animation */
         #loader {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 100px 20px;
-            text-align: center;
         }
 
         .spinner {
@@ -57,32 +56,35 @@
             margin-bottom: 20px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .loading-text {
             font-size: 1.2rem;
             font-weight: 600;
-            letter-spacing: 1px;
             color: #cbd5e1;
             animation: pulse 1.5s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* Video Section */
         .video-section {
             background: #000;
             aspect-ratio: 16 / 9;
             width: 100%;
+            position: relative;
         }
 
-        /* --- UI Elements --- */
+        /* Ad Overlay for First Click */
+        #ad-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: pointer;
+        }
+
         .content-padding { padding: 20px; }
         .video-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 15px; }
 
@@ -97,10 +99,9 @@
         }
 
         .meta-item { font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; }
-        .meta-item i { color: var(--accent); margin-right: 8px; width: 18px; text-align: center;}
+        .meta-item i { color: var(--accent); margin-right: 8px; width: 18px; }
 
-        /* Buttons */
-        .action-area { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+        .action-area { display: flex; flex-wrap: wrap; gap: 12px; }
         .btn {
             flex: 1; min-width: 150px; padding: 14px; border-radius: 14px;
             text-align: center; text-decoration: none; font-weight: 700;
@@ -109,18 +110,6 @@
         }
         .btn-download { background: #2563eb; color: white; }
         .btn-fast { background: #059669; color: white; }
-        .btn:active { transform: scale(0.95); }
-
-        /* --- AD CONTAINER (Bottom) --- */
-        .ad-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .ad-label { font-size: 10px; color: #475569; text-transform: uppercase; margin-bottom: 10px; display: block;}
     </style>
 </head>
 <body>
@@ -128,7 +117,7 @@
 <div class="main-card" id="app">
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loading-text">Loading Video Test...</div>
+        <div class="loading-text">Loading Video...</div>
     </div>
 </div>
 
@@ -136,16 +125,15 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
+    const smartLinkAd = "https://otieu.com/4/5361845";
+
     async function init() {
         const app = document.getElementById('app');
         const params = new URLSearchParams(window.location.search);
         const videoUrl = params.get('url');
 
         if (!videoUrl) {
-            app.innerHTML = `<div style="padding:40px; text-align:center;">
-                <i class="fas fa-exclamation-triangle fa-3x" style="color:#f59e0b; margin-bottom:15px;"></i>
-                <h2>URL Missing</h2><p>Please provide a Terabox link.</p>
-            </div>`;
+            app.innerHTML = `<div style="padding:40px; text-align:center;"><h2>Link Missing!</h2></div>`;
             return;
         }
 
@@ -159,6 +147,7 @@
 
                 app.innerHTML = `
                     <div class="video-section">
+                        <div id="ad-overlay"></div>
                         <video id="player" playsinline controls data-poster="${f.thumbnail}">
                             <source src="${stream}" type="application/x-mpegURL">
                         </video>
@@ -175,18 +164,8 @@
                         </div>
 
                         <div class="action-area">
-                            <a href="${f.download_link}" class="btn btn-download" target="_blank">
-                                <i class="fas fa-download"></i> Standard
-                            </a>
-                            <a href="${f.fast_download_link}" class="btn btn-fast" target="_blank">
-                                <i class="fas fa-bolt"></i> Fast Download
-                            </a>
-                        </div>
-
-                        <div class="ad-container">
-                            <span class="ad-label">Advertisement</span>
-                            <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-                            <script async="async" data-cfasync="false" src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
+                            <a href="${f.download_link}" class="btn btn-download" target="_blank">Download</a>
+                            <a href="${f.fast_download_link}" class="btn btn-fast" target="_blank">Fast Speed</a>
                         </div>
                     </div>
                 `;
@@ -194,11 +173,20 @@
                 const video = document.getElementById('player');
                 const player = new Plyr(video, { ratio: '16:9' });
 
+                // HLS Streaming
                 if (Hls.isSupported()) {
                     const hls = new Hls();
                     hls.loadSource(stream);
                     hls.attachMedia(video);
                 }
+
+                // Smart Link Ad Logic
+                const adOverlay = document.getElementById('ad-overlay');
+                adOverlay.addEventListener('click', () => {
+                    window.open(smartLinkAd, '_blank'); // Open Ad Link
+                    adOverlay.remove(); // Remove overlay so user can play video
+                    player.play(); // Auto start video after ad
+                });
 
                 // Auto Rotate Fullscreen
                 player.on('enterfullscreen', () => {
@@ -209,10 +197,10 @@
                 });
 
             } else {
-                app.innerHTML = `<div style="padding:40px; text-align:center;">Error: API Response Failed</div>`;
+                app.innerHTML = `<div style="padding:40px; text-align:center;">API Error</div>`;
             }
         } catch (e) {
-            app.innerHTML = `<div style="padding:40px; text-25align:center;">Error: ${e.message}</div>`;
+            app.innerHTML = `<div style="padding:40px; text-align:center;">Error: ${e.message}</div>`;
         }
     }
     init();
