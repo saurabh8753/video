@@ -3,23 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Professional Player</title>
+<title>Z-Tera Default Player</title>
 
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 :root{
-  --primary:#3b82f6;
-  --secondary:#1e293b;
   --bg:#0f172a;
+  --card:#1e293b;
 }
 
 body{
   margin:0;
   padding:20px;
   background:var(--bg);
-  font-family:Segoe UI,system-ui;
+  font-family:system-ui,Segoe UI;
   color:#fff;
   display:flex;
   justify-content:center;
@@ -28,7 +26,7 @@ body{
 .main-card{
   width:100%;
   max-width:1000px;
-  background:var(--secondary);
+  background:var(--card);
   border-radius:16px;
   overflow:hidden;
   box-shadow:0 20px 50px rgba(0,0,0,.5);
@@ -43,50 +41,50 @@ body{
 .buffering{
   position:absolute;
   inset:0;
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.35);
-  z-index:10;
-  display:none;
+  background:rgba(0,0,0,.4);
+  z-index:5;
 }
 
 .buffering i{
-  font-size:48px;
-  color:#fff;
+  font-size:46px;
 }
 
-.content-padding{
-  padding:25px;
+video{
+  width:100%;
+  height:auto;
+  background:#000;
 }
 
-.video-title{
-  font-size:1.4rem;
-  margin-bottom:10px;
+.content{
+  padding:22px;
 }
 
-.meta-grid{
+.title{
+  font-size:1.3rem;
+  margin-bottom:12px;
+}
+
+.meta{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:15px;
+  gap:14px;
   background:rgba(255,255,255,.05);
-  padding:15px;
+  padding:14px;
   border-radius:12px;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
 
-.meta-item{
+.meta div{
   font-size:.9rem;
   color:#94a3b8;
 }
-.meta-item i{
-  color:#38bdf8;
-  margin-right:6px;
-}
 
-.action-area{
+.actions{
   display:flex;
-  gap:15px;
+  gap:14px;
   flex-wrap:wrap;
 }
 
@@ -101,10 +99,11 @@ body{
   align-items:center;
   justify-content:center;
   gap:10px;
+  color:#fff;
 }
 
-.btn-download{background:#3b82f6;color:#fff}
-.btn-fast{background:#10b981;color:#fff}
+.download{background:#3b82f6}
+.fast{background:#10b981}
 
 #loading{
   padding:100px;
@@ -121,20 +120,19 @@ body{
   </div>
 </div>
 
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
 async function loadVideo(){
   const app=document.getElementById("app");
-  const url=new URLSearchParams(location.search).get("url");
+  const videoUrl=new URLSearchParams(location.search).get("url");
 
-  if(!url){
+  if(!videoUrl){
     app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
     return;
   }
 
-  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(url)}`;
+  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
   const res=await fetch(api);
   const data=await res.json();
 
@@ -148,49 +146,45 @@ async function loadVideo(){
     <div class="buffering" id="buffering">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
-    <video id="player" playsinline controls poster="${file.thumbnail}">
-      <source src="${stream}" type="application/x-mpegURL">
-    </video>
+
+    <!-- ✅ CHROME DEFAULT PLAYER -->
+    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
   </div>
 
-  <div class="content-padding">
-    <div class="video-title">${file.name}</div>
+  <div class="content">
+    <div class="title">${file.name}</div>
 
-    <div class="meta-grid">
-      <div class="meta-item"><i class="fas fa-database"></i>${file.size_formatted}</div>
-      <div class="meta-item"><i class="fas fa-clock"></i>${file.duration}</div>
-      <div class="meta-item"><i class="fas fa-video"></i>${file.quality}</div>
-      <div class="meta-item"><i class="fas fa-folder"></i>${file.folder}</div>
+    <div class="meta">
+      <div>💾 ${file.size_formatted}</div>
+      <div>⏱ ${file.duration}</div>
+      <div>🎥 ${file.quality}</div>
+      <div>📁 ${file.folder}</div>
     </div>
 
-    <div class="action-area">
-      <a class="btn btn-download" href="${file.download_link}" target="_blank">
+    <div class="actions">
+      <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
-      <a class="btn btn-fast" href="${file.fast_download_link}" target="_blank">
+      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
         <i class="fas fa-bolt"></i> Fast Download
       </a>
     </div>
   </div>
   `;
 
-  const video=document.getElementById("player");
+  const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  /* HLS */
-  if(Hls.isSupported()){
+  /* HLS SUPPORT */
+  if(video.canPlayType("application/vnd.apple.mpegurl")){
+    video.src=stream;
+  }else if(Hls.isSupported()){
     const hls=new Hls();
     hls.loadSource(stream);
     hls.attachMedia(video);
   }
 
-  /* Plyr – YouTube style seek */
-  const player=new Plyr(video,{
-    seekTime:10,
-    keyboard:{focused:true,global:true}
-  });
-
-  /* Buffering spinner */
+  /* BUFFERING SPINNER */
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
@@ -198,13 +192,9 @@ async function loadVideo(){
   /* 🔥 AUTO ROTATE ON FULLSCREEN */
   document.addEventListener("fullscreenchange",()=>{
     if(document.fullscreenElement){
-      if(screen.orientation?.lock){
-        screen.orientation.lock("landscape").catch(()=>{});
-      }
+      screen.orientation?.lock("landscape").catch(()=>{});
     }else{
-      if(screen.orientation?.unlock){
-        screen.orientation.unlock();
-      }
+      screen.orientation?.unlock?.();
     }
   });
 }
