@@ -1,209 +1,144 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-Tera Pro Max Player</title>
-    
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --secondary: #1e293b;
-            --accent: #06b6d4;
-            --bg: #0b0f1a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTERA Player</title>
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #f8fafc;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-        }
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-        .main-card {
-            width: 100%;
-            max-width: 850px;
-            background: #161e2e;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Loading Animation */
-        #loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 100px 20px;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .loading-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #cbd5e1;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        .video-section {
-            background: #000;
-            aspect-ratio: 16 / 9;
-            width: 100%;
-            position: relative;
-        }
-
-        /* Ad Overlay for First Click */
-        #ad-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            cursor: pointer;
-        }
-
-        .content-padding { padding: 20px; }
-        .video-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 15px; }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .meta-item { font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; }
-        .meta-item i { color: var(--accent); margin-right: 8px; width: 18px; }
-
-        .action-area { display: flex; flex-wrap: wrap; gap: 12px; }
-        .btn {
-            flex: 1; min-width: 150px; padding: 14px; border-radius: 14px;
-            text-align: center; text-decoration: none; font-weight: 700;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s; border: none; font-size: 0.9rem;
-        }
-        .btn-download { background: #2563eb; color: white; }
-        .btn-fast { background: #059669; color: white; }
-    </style>
+<style>
+body{
+    margin:0;
+    font-family:Inter, Arial, sans-serif;
+    background:#eef3ff;
+}
+.video-section{
+    max-width:520px;
+    margin:16px auto;
+}
+.content-padding{
+    max-width:520px;
+    margin:auto;
+    padding:16px;
+}
+.meta-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin:16px 0;
+}
+.meta-item{
+    background:#fff;
+    padding:10px;
+    border-radius:12px;
+    font-size:14px;
+}
+.action-area{
+    display:flex;
+    gap:12px;
+}
+.btn{
+    flex:1;
+    padding:14px;
+    text-align:center;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:600;
+}
+.btn-download{background:#3248f5;color:#fff;}
+.btn-fast{background:#16a34a;color:#fff;}
+</style>
 </head>
+
 <body>
 
-<div class="main-card" id="app">
-    <div id="loader">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading Video...</div>
-    </div>
+<div id="app" style="min-height:60vh;text-align:center;padding:40px;">
+    Loading...
 </div>
 
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<!-- ✅ AD SECTION (Body ke andar – safe) -->
+<div style="max-width:520px;margin:20px auto;text-align:center;">
+    <script async data-cfasync="false"
+        src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
+    </script>
+    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+</div>
+<!-- ✅ AD SECTION END -->
 
 <script>
-    const smartLinkAd = "https://otieu.com/4/5361845";
+async function init(){
+    const app = document.getElementById("app");
+    const videoUrl = new URLSearchParams(window.location.search).get("url");
 
-    async function init() {
-        const app = document.getElementById('app');
-        const params = new URLSearchParams(window.location.search);
-        const videoUrl = params.get('url');
-
-        if (!videoUrl) {
-            app.innerHTML = `<div style="padding:40px; text-align:center;"><h2>Link Missing!</h2></div>`;
-            return;
-        }
-
-        try {
-            const apiRes = await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
-            const data = await apiRes.json();
-
-            if (data.status === "success" && data.list.length > 0) {
-                const f = data.list[0];
-                const stream = f.fast_stream_url['480p'] || f.stream_url;
-
-                app.innerHTML = `
-                    <div class="video-section">
-                        <div id="ad-overlay"></div>
-                        <video id="player" playsinline controls data-poster="${f.thumbnail}">
-                            <source src="${stream}" type="application/x-mpegURL">
-                        </video>
-                    </div>
-
-                    <div class="content-padding">
-                        <h1 class="video-title">${f.name}</h1>
-                        
-                        <div class="meta-grid">
-                            <div class="meta-item"><i class="fas fa-database"></i> ${f.size_formatted}</div>
-                            <div class="meta-item"><i class="fas fa-clock"></i> ${f.duration}</div>
-                            <div class="meta-item"><i class="fas fa-signal"></i> ${f.quality}</div>
-                            <div class="meta-item"><i class="fas fa-folder"></i> ${f.folder}</div>
-                        </div>
-
-                        <div class="action-area">
-                            <a href="${f.download_link}" class="btn btn-download" target="_blank">Download</a>
-                            <a href="${f.fast_download_link}" class="btn btn-fast" target="_blank">Fast Speed</a>
-                        </div>
-                    </div>
-                `;
-
-                const video = document.getElementById('player');
-                const player = new Plyr(video, { ratio: '16:9' });
-
-                // HLS Streaming
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(stream);
-                    hls.attachMedia(video);
-                }
-
-                // Smart Link Ad Logic
-                const adOverlay = document.getElementById('ad-overlay');
-                adOverlay.addEventListener('click', () => {
-                    window.open(smartLinkAd, '_blank'); // Open Ad Link
-                    adOverlay.remove(); // Remove overlay so user can play video
-                    player.play(); // Auto start video after ad
-                });
-
-                // Auto Rotate Fullscreen
-                player.on('enterfullscreen', () => {
-                    if(screen.orientation) screen.orientation.lock('landscape').catch(() => {});
-                });
-                player.on('exitfullscreen', () => {
-                    if(screen.orientation) screen.orientation.unlock();
-                });
-
-            } else {
-                app.innerHTML = `<div style="padding:40px; text-align:center;">API Error</div>`;
-            }
-        } catch (e) {
-            app.innerHTML = `<div style="padding:40px; text-align:center;">Error: ${e.message}</div>`;
-        }
+    if(!videoUrl){
+        app.innerHTML = "No video URL found";
+        return;
     }
-    init();
+
+    try{
+        const apiRes = await fetch(
+            `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`
+        );
+        const data = await apiRes.json();
+
+        if(data.status === "success" && data.list.length){
+            const f = data.list[0];
+            const stream = f.fast_stream_url?.['480p'] || f.stream_url;
+
+            app.innerHTML = `
+                <div class="video-section">
+                    <video id="player" playsinline controls poster="${f.thumbnail}">
+                        <source src="${stream}" type="application/x-mpegURL">
+                    </video>
+                </div>
+
+                <div class="content-padding">
+                    <h2>${f.name}</h2>
+
+                    <div class="meta-grid">
+                        <div class="meta-item">💾 ${f.size_formatted}</div>
+                        <div class="meta-item">⏱ ${f.duration}</div>
+                        <div class="meta-item">📶 ${f.quality}</div>
+                        <div class="meta-item">📁 ${f.folder}</div>
+                    </div>
+
+                    <div class="action-area">
+                        <a class="btn btn-download" href="${f.download_link}" target="_blank">Download</a>
+                        <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">Fast Speed</a>
+                    </div>
+                </div>
+            `;
+
+            const video = document.getElementById("player");
+            const player = new Plyr(video,{ratio:"16:9"});
+
+            if(Hls.isSupported()){
+                const hls = new Hls();
+                hls.loadSource(stream);
+                hls.attachMedia(video);
+            }
+
+            // Auto rotate fullscreen
+            player.on("enterfullscreen",()=>{
+                screen.orientation?.lock("landscape").catch(()=>{});
+            });
+            player.on("exitfullscreen",()=>{
+                screen.orientation?.unlock();
+            });
+
+        }else{
+            app.innerHTML = "API Error";
+        }
+
+    }catch(e){
+        app.innerHTML = "Error: " + e.message;
+    }
+}
+
+init();
 </script>
 
 </body>
