@@ -1,175 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZTERA Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Tera Professional Player</title>
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1e293b;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+        }
 
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:Inter, Arial, sans-serif;
-  background:#eef3ff;
-}
+        .main-card {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
 
-.video-section{
-  width:100%;
-  max-width:720px;
-  margin:16px auto;
-}
+        /* Player Styling */
+        .video-section {
+            background: #000;
+            position: relative;
+        }
 
-video{
-  width:100%;
-  background:#000;
-  border-radius:14px;
-}
+        /* Content Styling */
+        .content-padding {
+            padding: 25px;
+        }
 
-.content-padding{
-  max-width:720px;
-  margin:auto;
-  padding:16px;
-}
+        .video-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
 
-.video-title{
-  font-size:18px;
-  font-weight:700;
-  line-height:1.4;
-  margin-bottom:12px;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
 
-.meta-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin:16px 0;
-}
+        .meta-item { font-size: 0.9rem; color: #94a3b8; }
+        .meta-item i { color: var(--accent); margin-right: 8px; }
 
-.meta-item{
-  background:#fff;
-  padding:10px;
-  border-radius:12px;
-  font-size:14px;
-}
+        /* Action Buttons */
+        .action-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-.action-area{
-  display:flex;
-  gap:12px;
-}
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 25px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
 
-.btn{
-  flex:1;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
-  text-decoration:none;
-  font-weight:600;
-}
+        .btn-download { background: var(--primary); color: white; }
+        .btn-fast { background: #10b981; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
-.btn-download{background:#3248f5;color:#fff;}
-.btn-fast{background:#16a34a;color:#fff;}
-</style>
+        #loading-state {
+            padding: 100px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .quality-badge {
+            background: #f59e0b;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="app" style="min-height:60vh;text-align:center;padding:40px;">
-  Loading…
+<div class="main-card" id="app">
+    <div id="loading-state">
+        <i class="fas fa-spinner fa-spin"></i> Fetching Video Content...
+    </div>
 </div>
 
-<!-- ✅ AD SECTION (VIDEO SE FULLY ALAG) -->
-<div style="max-width:720px;margin:20px auto;text-align:center;">
-  <script async data-cfasync="false"
-    src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
-  </script>
-  <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-</div>
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-(async function init(){
-  const app = document.getElementById("app");
-  const videoUrl = new URLSearchParams(location.search).get("url");
+    async function loadVideo() {
+        const app = document.getElementById('app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('url');
 
-  if(!videoUrl){
-    app.innerHTML = "No video URL found";
-    return;
-  }
+        if (!videoUrl) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">
+                <h2 style="color:#ef4444">No Link Provided!</h2>
+                <p>Please add <b>?url=TERABOX_LINK</b> to the end of your browser URL.</p>
+            </div>`;
+            return;
+        }
 
-  try{
-    const res = await fetch(
-      `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`
-    );
-    const data = await res.json();
+        try {
+            const apiUrl = `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
 
-    if(data.status !== "success" || !data.list.length){
-      app.innerHTML = "API Error";
-      return;
+            if (data.status === "success" && data.list.length > 0) {
+                const file = data.list[0];
+                
+                // Hum preference fast_stream_url (480p) ko denge agar available hai
+                const defaultStream = file.fast_stream_url['480p'] || file.stream_url;
+
+                app.innerHTML = `
+                    <div class="video-section">
+                        <video id="player" playsinline controls data-poster="${file.thumbnail}">
+                            <source src="${defaultStream}" type="application/x-mpegURL">
+                        </video>
+                    </div>
+
+                    <div class="content-padding">
+                        <h1 class="video-title">${file.name}</h1>
+                        
+                        <div class="meta-grid">
+                            <div class="meta-item"><i class="fas fa-database"></i> ${file.size_formatted}</div>
+                            <div class="meta-item"><i class="fas fa-clock"></i> ${file.duration}</div>
+                            <div class="meta-item"><i class="fas fa-video"></i> Quality: ${file.quality}</div>
+                            <div class="meta-item"><i class="fas fa-folder"></i> ${file.folder}</div>
+                        </div>
+
+                        <div class="action-area">
+                            <a href="${file.download_link}" class="btn btn-download" target="_blank">
+                                <i class="fas fa-download"></i> Standard Download
+                            </a>
+                            <a href="${file.fast_download_link}" class="btn btn-fast" target="_blank">
+                                <i class="fas fa-bolt"></i> Fast Download (Direct)
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                // HLS Support for streaming .m3u8 files
+                const video = document.getElementById('player');
+                const source = defaultStream;
+                
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(video);
+                }
+
+                // Initialize Plyr
+                const player = new Plyr(video, {
+                    quality: {
+                        default: 480,
+                        options: [480, 360],
+                        forced: true,
+                        onChange: (e) => updateQuality(e, file)
+                    }
+                });
+
+            } else {
+                app.innerHTML = `<div style="padding:50px; text-align:center;">Error: API did not return data.</div>`;
+            }
+        } catch (error) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">System Error: ${error.message}</div>`;
+        }
     }
 
-    const f = data.list[0];
-    const stream = f.fast_stream_url?.["480p"] || f.stream_url;
-
-    app.innerHTML = `
-      <div class="video-section">
-        <video
-          id="player"
-          controls
-          playsinline
-          webkit-playsinline
-          poster="${f.thumbnail}">
-          <source src="${stream}" type="application/x-mpegURL">
-        </video>
-      </div>
-
-      <div class="content-padding">
-        <h2 class="video-title">${f.name}</h2>
-
-        <div class="meta-grid">
-          <div class="meta-item">💾 ${f.size_formatted}</div>
-          <div class="meta-item">⏱ ${f.duration}</div>
-          <div class="meta-item">📶 ${f.quality}</div>
-          <div class="meta-item">📁 ${f.folder}</div>
-        </div>
-
-        <div class="action-area">
-          <a class="btn btn-download" href="${f.download_link}" target="_blank">Download</a>
-          <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">Fast Speed</a>
-        </div>
-      </div>
-    `;
-
-    const video = document.getElementById("player");
-
-    // ✅ ONLY SAFE PLAYER INIT (NO CLICK LISTENERS)
-    const player = new Plyr(video, { ratio: "16:9" });
-
-    if(Hls.isSupported()){
-      const hls = new Hls();
-      hls.loadSource(stream);
-      hls.attachMedia(video);
+    function updateQuality(newQuality, file) {
+        // Logic to switch between 360p and 480p from fast_stream_url
+        console.log("Quality changed to:", newQuality);
     }
 
-    // Optional orientation lock (no redirect risk)
-    player.on("enterfullscreen",()=>{
-      screen.orientation?.lock("landscape").catch(()=>{});
-    });
-    player.on("exitfullscreen",()=>{
-      screen.orientation?.unlock?.();
-    });
+    loadVideo();
+</script>
 
-  }catch(e){
-    app.innerHTML = "Error: " + e.message;
-  }
-})();
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-Tera Professional Player</title>
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1e293b;
+            --accent: #06b6d4;
+            --bg: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-card {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Player Styling */
+        .video-section {
+            background: #000;
+            position: relative;
+        }
+
+        /* Content Styling */
+        .content-padding {
+            padding: 25px;
+        }
+
+        .video-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .meta-item { font-size: 0.9rem; color: #94a3b8; }
+        .meta-item i { color: var(--accent); margin-right: 8px; }
+
+        /* Action Buttons */
+        .action-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 25px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-download { background: var(--primary); color: white; }
+        .btn-fast { background: #10b981; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        #loading-state {
+            padding: 100px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .quality-badge {
+            background: #f59e0b;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card" id="app">
+    <div id="loading-state">
+        <i class="fas fa-spinner fa-spin"></i> Fetching Video Content...
+    </div>
+</div>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<script>
+    async function loadVideo() {
+        const app = document.getElementById('app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('url');
+
+        if (!videoUrl) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">
+                <h2 style="color:#ef4444">No Link Provided!</h2>
+                <p>Please add <b>?url=TERABOX_LINK</b> to the end of your browser URL.</p>
+            </div>`;
+            return;
+        }
+
+        try {
+            const apiUrl = `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (data.status === "success" && data.list.length > 0) {
+                const file = data.list[0];
+                
+                // Hum preference fast_stream_url (480p) ko denge agar available hai
+                const defaultStream = file.fast_stream_url['480p'] || file.stream_url;
+
+                app.innerHTML = `
+                    <div class="video-section">
+                        <video id="player" playsinline controls data-poster="${file.thumbnail}">
+                            <source src="${defaultStream}" type="application/x-mpegURL">
+                        </video>
+                    </div>
+
+                    <div class="content-padding">
+                        <h1 class="video-title">${file.name}</h1>
+                        
+                        <div class="meta-grid">
+                            <div class="meta-item"><i class="fas fa-database"></i> ${file.size_formatted}</div>
+                            <div class="meta-item"><i class="fas fa-clock"></i> ${file.duration}</div>
+                            <div class="meta-item"><i class="fas fa-video"></i> Quality: ${file.quality}</div>
+                            <div class="meta-item"><i class="fas fa-folder"></i> ${file.folder}</div>
+                        </div>
+
+                        <div class="action-area">
+                            <a href="${file.download_link}" class="btn btn-download" target="_blank">
+                                <i class="fas fa-download"></i> Standard Download
+                            </a>
+                            <a href="${file.fast_download_link}" class="btn btn-fast" target="_blank">
+                                <i class="fas fa-bolt"></i> Fast Download (Direct)
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                // HLS Support for streaming .m3u8 files
+                const video = document.getElementById('player');
+                const source = defaultStream;
+                
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(video);
+                }
+
+                // Initialize Plyr
+                const player = new Plyr(video, {
+                    quality: {
+                        default: 480,
+                        options: [480, 360],
+                        forced: true,
+                        onChange: (e) => updateQuality(e, file)
+                    }
+                });
+
+            } else {
+                app.innerHTML = `<div style="padding:50px; text-align:center;">Error: API did not return data.</div>`;
+            }
+        } catch (error) {
+            app.innerHTML = `<div style="padding:50px; text-align:center;">System Error: ${error.message}</div>`;
+        }
+    }
+
+    function updateQuality(newQuality, file) {
+        // Logic to switch between 360p and 480p from fast_stream_url
+        console.log("Quality changed to:", newQuality);
+    }
+
+    loadVideo();
 </script>
 
 </body>
