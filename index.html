@@ -5,66 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZTERA Player</title>
 
-<!-- Player libs -->
+<!-- Plyr & HLS -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
 <style>
 :root{
-  --primary:#2563eb;
   --bg:#0b1020;
   --card:#111827;
   --soft:#1f2937;
   --text:#e5e7eb;
   --muted:#9ca3af;
-  --radius:14px;
+  --primary:#2563eb;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:linear-gradient(180deg,#0b1020,#0f172a);
   font-family:Inter,system-ui;
+  background:linear-gradient(180deg,#0b1020,#0f172a);
   color:var(--text);
 }
 
-/* ===== Player ===== */
+/* ===== PLAYER ===== */
 .player-shell{
   max-width:960px;
-  margin:18px auto 0;
+  margin:16px auto 0;
   background:#000;
   border-radius:20px;
   overflow:hidden;
-  box-shadow:0 30px 70px rgba(0,0,0,.6);
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
 }
 
-/* ===== Content ===== */
+/* 🔥 FULLSCREEN FIX */
+.player-shell:fullscreen,
+.player-shell:-webkit-full-screen{
+  width:100vw !important;
+  height:100vh !important;
+  max-width:none !important;
+  margin:0 !important;
+  border-radius:0 !important;
+}
+
+/* ===== INFO CARD ===== */
 .info-wrap{
   max-width:960px;
-  margin:18px auto;
+  margin:16px auto;
   padding:18px;
   background:var(--card);
   border-radius:20px;
-  box-shadow:0 15px 40px rgba(0,0,0,.4);
+  box-shadow:0 15px 40px rgba(0,0,0,.45);
 }
 
 .title{
   font-size:20px;
   font-weight:700;
-  margin-bottom:14px;
   line-height:1.4;
+  margin-bottom:14px;
 }
 
-/* ===== Stats ===== */
+/* ===== STATS ===== */
 .stats{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
   margin-bottom:18px;
 }
-
 .stat{
   background:var(--soft);
   padding:10px 14px;
@@ -73,22 +81,20 @@ body{
   color:var(--muted);
 }
 
-/* ===== Actions ===== */
+/* ===== ACTIONS ===== */
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
 }
-
 .btn{
   padding:14px;
   border-radius:16px;
-  font-weight:700;
   text-align:center;
   text-decoration:none;
+  font-weight:700;
   transition:.25s;
 }
-
 .btn-primary{
   background:linear-gradient(135deg,#2563eb,#1d4ed8);
   color:#fff;
@@ -97,7 +103,6 @@ body{
   transform:translateY(-2px);
   box-shadow:0 12px 30px rgba(37,99,235,.5);
 }
-
 .btn-outline{
   border:1px solid #334155;
   color:#c7d2fe;
@@ -106,7 +111,7 @@ body{
   background:#1e293b;
 }
 
-/* ===== Ad ===== */
+/* ===== AD ===== */
 .ad-zone{
   max-width:960px;
   margin:24px auto;
@@ -116,7 +121,7 @@ body{
   text-align:center;
 }
 
-/* ===== Mobile ===== */
+/* ===== MOBILE ===== */
 @media(max-width:600px){
   .player-shell,
   .info-wrap,
@@ -135,7 +140,7 @@ body{
   Loading video…
 </div>
 
-<!-- ✅ AD (EXACT SAME PLACE – BODY SECTION) -->
+<!-- ✅ AD (BODY – SAME PLACE) -->
 <div class="ad-zone">
   <script async data-cfasync="false"
     src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
@@ -146,27 +151,33 @@ body{
 
 <script>
 async function init(){
-  const app=document.getElementById("app");
-  const url=new URLSearchParams(location.search).get("url");
+  const app = document.getElementById("app");
+  const url = new URLSearchParams(location.search).get("url");
 
   if(!url){
-    app.innerHTML="No video URL";
+    app.innerHTML = "No video URL";
     return;
   }
 
   try{
-    const res=await fetch(
+    const res = await fetch(
       `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(url)}`
     );
-    const data=await res.json();
+    const data = await res.json();
 
-    if(data.status==="success" && data.list.length){
-      const f=data.list[0];
-      const stream=f.fast_stream_url?.["480p"] || f.stream_url;
+    if(data.status === "success" && data.list.length){
+      const f = data.list[0];
+      const stream = f.fast_stream_url?.["480p"] || f.stream_url;
 
-      app.innerHTML=`
+      app.innerHTML = `
         <div class="player-shell">
-          <video id="player" controls playsinline poster="${f.thumbnail}">
+          <video
+            id="player"
+            controls
+            playsinline
+            webkit-playsinline
+            x-webkit-airplay="allow"
+            poster="${f.thumbnail}">
             <source src="${stream}" type="application/x-mpegURL">
           </video>
         </div>
@@ -192,34 +203,44 @@ async function init(){
         </div>
       `;
 
-      const video=document.getElementById("player");
-      const player=new Plyr(video,{
+      const video = document.getElementById("player");
+
+      const player = new Plyr(video,{
         ratio:"16:9",
+        fullscreen:{
+          enabled:true,
+          fallback:true,
+          iosNative:true,
+          container:".player-shell"
+        },
         controls:[
-          'play-large','play','progress','current-time',
-          'mute','volume','settings','fullscreen'
+          "play-large","play","progress","current-time",
+          "mute","volume","settings","fullscreen"
         ]
       });
 
       if(Hls.isSupported()){
-        const hls=new Hls();
+        const hls = new Hls();
         hls.loadSource(stream);
         hls.attachMedia(video);
       }
 
+      // 🔄 Orientation
       player.on("enterfullscreen",()=>{
-        screen.orientation?.lock("landscape").catch(()=>{});
+        if(screen.orientation?.lock){
+          screen.orientation.lock("landscape").catch(()=>{});
+        }
       });
       player.on("exitfullscreen",()=>{
-        screen.orientation?.unlock();
+        screen.orientation?.unlock?.();
       });
 
     }else{
-      app.innerHTML="API Error";
+      app.innerHTML = "API Error";
     }
 
   }catch(e){
-    app.innerHTML="Error: "+e.message;
+    app.innerHTML = "Error: " + e.message;
   }
 }
 init();
