@@ -3,141 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZTERA Player</title>
+<title>ZTERA – Professional Video Player</title>
 
+<!-- Player -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
+:root{
+  --primary:#3248f5;
+  --bg:#f3f6ff;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --radius:18px;
+}
+
+*{box-sizing:border-box}
+
 body{
-    margin:0;
-    font-family:Inter, Arial, sans-serif;
-    background:#eef3ff;
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont;
+  background:linear-gradient(180deg,#eef2ff,#f8f9ff);
+  color:var(--text);
 }
-.video-section{
-    max-width:520px;
-    margin:16px auto;
+
+/* ===== Player ===== */
+.video-wrap{
+  max-width:720px;
+  margin:18px auto 0;
+  background:#000;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
 }
-.content-padding{
-    max-width:520px;
-    margin:auto;
-    padding:16px;
+
+/* ===== Card ===== */
+.card{
+  max-width:720px;
+  margin:18px auto;
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:0 10px 30px rgba(15,23,42,.08);
 }
+
+.title{
+  font-size:18px;
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:14px;
+}
+
+/* ===== Meta ===== */
 .meta-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin:16px 0;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:18px;
 }
-.meta-item{
-    background:#fff;
-    padding:10px;
-    border-radius:12px;
-    font-size:14px;
+
+.meta{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#f8fafc;
+  padding:12px;
+  border-radius:14px;
+  font-size:14px;
+  color:#334155;
 }
-.action-area{
-    display:flex;
-    gap:12px;
+.meta i{
+  color:var(--primary);
 }
+
+/* ===== Buttons ===== */
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
 .btn{
-    flex:1;
-    padding:14px;
-    text-align:center;
-    border-radius:14px;
-    text-decoration:none;
-    font-weight:600;
+  padding:14px;
+  border-radius:16px;
+  text-decoration:none;
+  font-weight:700;
+  text-align:center;
+  transition:.25s;
 }
-.btn-download{background:#3248f5;color:#fff;}
-.btn-fast{background:#16a34a;color:#fff;}
+
+.btn-download{
+  background:linear-gradient(135deg,var(--primary),#1d4ed8);
+  color:#fff;
+}
+.btn-download:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 25px rgba(50,72,245,.35);
+}
+
+.btn-fast{
+  background:#ecfeff;
+  color:#0369a1;
+  border:1px solid #bae6fd;
+}
+.btn-fast:hover{
+  background:#e0f2fe;
+}
+
+/* ===== Ad ===== */
+.ad-box{
+  max-width:720px;
+  margin:22px auto;
+  padding:12px;
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.06);
+  text-align:center;
+}
+
+/* ===== Mobile ===== */
+@media(max-width:520px){
+  .video-wrap,.card,.ad-box{
+    border-radius:16px;
+    margin-left:12px;
+    margin-right:12px;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<div id="app" style="min-height:60vh;text-align:center;padding:40px;">
-    Loading...
+<div id="app" style="padding:40px;text-align:center;color:#64748b">
+  Loading video…
 </div>
 
-<!-- ✅ AD SECTION (Body ke andar – safe) -->
-<div style="max-width:520px;margin:20px auto;text-align:center;">
-    <script async data-cfasync="false"
-        src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
-    </script>
-    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+<!-- ✅ BODY AD -->
+<div class="ad-box">
+  <script async data-cfasync="false"
+    src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js">
+  </script>
+  <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
 </div>
-<!-- ✅ AD SECTION END -->
 
 <script>
 async function init(){
-    const app = document.getElementById("app");
-    const videoUrl = new URLSearchParams(window.location.search).get("url");
+  const app = document.getElementById("app");
+  const url = new URLSearchParams(location.search).get("url");
 
-    if(!videoUrl){
-        app.innerHTML = "No video URL found";
-        return;
+  if(!url){
+    app.innerHTML="No video URL";
+    return;
+  }
+
+  try{
+    const res = await fetch(
+      `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(url)}`
+    );
+    const data = await res.json();
+
+    if(data.status==="success" && data.list.length){
+      const f = data.list[0];
+      const stream = f.fast_stream_url?.['480p'] || f.stream_url;
+
+      app.innerHTML=`
+        <div class="video-wrap">
+          <video id="player" playsinline controls poster="${f.thumbnail}">
+            <source src="${stream}" type="application/x-mpegURL">
+          </video>
+        </div>
+
+        <div class="card">
+          <div class="title">${f.name}</div>
+
+          <div class="meta-grid">
+            <div class="meta"><i class="fa-solid fa-database"></i>${f.size_formatted}</div>
+            <div class="meta"><i class="fa-solid fa-clock"></i>${f.duration}</div>
+            <div class="meta"><i class="fa-solid fa-signal"></i>${f.quality}</div>
+            <div class="meta"><i class="fa-solid fa-folder"></i>${f.folder}</div>
+          </div>
+
+          <div class="actions">
+            <a class="btn btn-download" href="${f.download_link}" target="_blank">
+              <i class="fa-solid fa-download"></i> Download
+            </a>
+            <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">
+              <i class="fa-solid fa-bolt"></i> Fast Speed
+            </a>
+          </div>
+        </div>
+      `;
+
+      const video=document.getElementById("player");
+      const player=new Plyr(video,{ratio:"16:9"});
+
+      if(Hls.isSupported()){
+        const hls=new Hls();
+        hls.loadSource(stream);
+        hls.attachMedia(video);
+      }
+
+      player.on("enterfullscreen",()=>{
+        screen.orientation?.lock("landscape").catch(()=>{});
+      });
+      player.on("exitfullscreen",()=>{
+        screen.orientation?.unlock();
+      });
+
+    }else{
+      app.innerHTML="API Error";
     }
 
-    try{
-        const apiRes = await fetch(
-            `https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`
-        );
-        const data = await apiRes.json();
-
-        if(data.status === "success" && data.list.length){
-            const f = data.list[0];
-            const stream = f.fast_stream_url?.['480p'] || f.stream_url;
-
-            app.innerHTML = `
-                <div class="video-section">
-                    <video id="player" playsinline controls poster="${f.thumbnail}">
-                        <source src="${stream}" type="application/x-mpegURL">
-                    </video>
-                </div>
-
-                <div class="content-padding">
-                    <h2>${f.name}</h2>
-
-                    <div class="meta-grid">
-                        <div class="meta-item">💾 ${f.size_formatted}</div>
-                        <div class="meta-item">⏱ ${f.duration}</div>
-                        <div class="meta-item">📶 ${f.quality}</div>
-                        <div class="meta-item">📁 ${f.folder}</div>
-                    </div>
-
-                    <div class="action-area">
-                        <a class="btn btn-download" href="${f.download_link}" target="_blank">Download</a>
-                        <a class="btn btn-fast" href="${f.fast_download_link}" target="_blank">Fast Speed</a>
-                    </div>
-                </div>
-            `;
-
-            const video = document.getElementById("player");
-            const player = new Plyr(video,{ratio:"16:9"});
-
-            if(Hls.isSupported()){
-                const hls = new Hls();
-                hls.loadSource(stream);
-                hls.attachMedia(video);
-            }
-
-            // Auto rotate fullscreen
-            player.on("enterfullscreen",()=>{
-                screen.orientation?.lock("landscape").catch(()=>{});
-            });
-            player.on("exitfullscreen",()=>{
-                screen.orientation?.unlock();
-            });
-
-        }else{
-            app.innerHTML = "API Error";
-        }
-
-    }catch(e){
-        app.innerHTML = "Error: " + e.message;
-    }
+  }catch(e){
+    app.innerHTML="Error: "+e.message;
+  }
 }
-
 init();
 </script>
 
