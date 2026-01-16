@@ -20,7 +20,6 @@ body{
   font-family:system-ui,Segoe UI;
   color:#fff;
   display:flex;
-  justify-content:center;
   flex-direction:column;
   align-items:center;
 }
@@ -83,13 +82,9 @@ video{
 }
 
 .actions{
-  display:none; /* 🔥 initially hidden */
+  display:flex;
   gap:14px;
   flex-wrap:wrap;
-}
-
-.actions.show{
-  display:flex;
 }
 
 .btn{
@@ -150,7 +145,6 @@ async function loadVideo(){
     <div class="buffering" id="buffering">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
-
     <video id="video" controls playsinline poster="${file.thumbnail}"></video>
   </div>
 
@@ -164,8 +158,8 @@ async function loadVideo(){
       <div>📁 ${file.folder}</div>
     </div>
 
-    <!-- 🔥 DOWNLOADS (HIDDEN INITIALLY) -->
-    <div class="actions" id="actions">
+    <!-- ✅ PLAYER KE SATH HI BUTTONS -->
+    <div class="actions">
       <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
@@ -178,7 +172,6 @@ async function loadVideo(){
 
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
-  const actions=document.getElementById("actions");
 
   /* HLS */
   if(video.canPlayType("application/vnd.apple.mpegurl")){
@@ -192,14 +185,9 @@ async function loadVideo(){
   /* Spinner */
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
+  video.addEventListener("canplay",()=>loader.style.display="none");
 
-  /* 🔥 Show buttons ONLY after video loaded */
-  video.addEventListener("canplay",()=>{
-    loader.style.display="none";
-    actions.classList.add("show");
-  });
-
-  /* Auto rotate */
+  /* Auto rotate on fullscreen */
   document.addEventListener("fullscreenchange",()=>{
     if(document.fullscreenElement){
       screen.orientation?.lock("landscape").catch(()=>{});
@@ -215,26 +203,6 @@ loadVideo();
 <!-- ✅ AD CODE (UNCHANGED, BODY SECTION) -->
 <script async="async" data-cfasync="false" src="https://pl28483410.effectivegatecpm.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
 <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>  
 
 </body>
 </html>
