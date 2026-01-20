@@ -158,7 +158,6 @@ async function loadVideo(){
       <div>📁 ${file.folder}</div>
     </div>
 
-    <!-- ✅ PLAYER KE SATH HI BUTTONS -->
     <div class="actions">
       <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
@@ -187,12 +186,16 @@ async function loadVideo(){
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
-  /* Auto rotate on fullscreen */
+  /* 🔒 AUTO ROTATE FIX (REEL SAFE) */
   document.addEventListener("fullscreenchange",()=>{
-    if(document.fullscreenElement){
-      screen.orientation?.lock("landscape").catch(()=>{});
-    }else{
+    if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
+      return;
+    }
+
+    // Sirf landscape video me hi rotate
+    if(video.videoWidth > video.videoHeight){
+      screen.orientation?.lock("landscape").catch(()=>{});
     }
   });
 }
@@ -321,6 +324,4 @@ loadVideo();
   };
 </script>
 <script src="https://www.highperformanceformat.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"></script>  
-  
-</body>
 </html>
