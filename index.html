@@ -8,16 +8,11 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-}
-
 body{
   margin:0;
   padding:20px;
-  background:var(--bg);
-  font-family:system-ui,Segoe UI;
+  background:#0f172a;
+  font-family:system-ui;
   color:#fff;
   display:flex;
   flex-direction:column;
@@ -27,30 +22,23 @@ body{
 .main-card{
   width:100%;
   max-width:1000px;
-  background:var(--card);
+  background:#1e293b;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 
-.video-section{position:relative;background:#000;}
-video{width:100%;background:#000;}
-.content{padding:22px;}
+video{width:100%;background:#000}
+.content{padding:20px}
 
-.meta{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+.actions{
+  display:flex;
   gap:14px;
-  background:rgba(255,255,255,.05);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
 }
-
-.actions{display:flex;gap:14px;flex-wrap:wrap;}
 
 .btn{
-  flex:1;
   min-width:200px;
   padding:14px;
   border-radius:12px;
@@ -66,7 +54,7 @@ video{width:100%;background:#000;}
 .download{background:#3b82f6}
 .fast{background:#10b981}
 
-#ad-top,#ad-middle,#ad-bottom{
+#ad-top,#ad-bottom,#ad-middle{
   margin:20px 0;
   display:flex;
   justify-content:center;
@@ -76,7 +64,7 @@ video{width:100%;background:#000;}
 
 <body>
 
-<!-- 🔥 SWAPPED: old bottom ad now TOP -->
+<!-- 🔥 TOP (original bottom ad moved here) -->
 <div id="ad-top"></div>
 
 <div class="main-card" id="app">
@@ -85,7 +73,7 @@ video{width:100%;background:#000;}
   </div>
 </div>
 
-<!-- 🔥 SWAPPED: old top ad now BOTTOM -->
+<!-- 🔥 BOTTOM (original top ad moved here) -->
 <div id="ad-bottom"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -109,25 +97,15 @@ async function loadVideo(){
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
   app.innerHTML=`
-  <div class="video-section">
-    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
-  </div>
+  <video id="video" controls playsinline poster="${file.thumbnail}"></video>
 
   <div class="content">
-
-    <div class="meta">
-      <div>💾 ${file.size_formatted}</div>
-      <div>⏱ ${file.duration}</div>
-      <div>🎥 ${file.quality}</div>
-      <div>📁 ${file.folder}</div>
-    </div>
 
     <div class="actions">
       <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
 
-      <!-- 🔥 AD BETWEEN BUTTONS -->
       <div id="ad-middle"></div>
 
       <a class="btn fast" href="${file.fast_download_link}" target="_blank">
@@ -155,27 +133,27 @@ window.onload=()=>setTimeout(loadAds,1500);
 
 function loadAds(){
 
-  // 🔥 TOP (old bottom)
+  // 🔥 ORIGINAL BOTTOM AD → NOW TOP
   document.getElementById("ad-top").innerHTML=`
-  <script>
-  atOptions={'key':'d44514311f6e562115f063a2ee3378ae','format':'iframe','height':300,'width':160};
-  <\/script>
-  <script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"><\/script>
-  `;
+<script>
+atOptions={'key':'d44514311f6e562115f063a2ee3378ae','format':'iframe','height':300,'width':160};
+<\/script>
+<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"><\/script>
+`;
 
-  // 🔥 BOTTOM (old top)
+  // 🔥 ORIGINAL TOP AD → NOW BOTTOM
   document.getElementById("ad-bottom").innerHTML=`
-  <script async data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
-  <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-  `;
+<script async data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
+<div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+`;
 
-  // 🔥 MIDDLE banner
+  // 🔥 NEW MIDDLE BANNER
   document.getElementById("ad-middle").innerHTML=`
-  <script>
-  atOptions={'key':'a3e9dc25add10d9e1a011af79ed04506','format':'iframe','height':90,'width':728};
-  <\/script>
-  <script src="https://yawncollaremotion.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"><\/script>
-  `;
+<script>
+atOptions={'key':'a3e9dc25add10d9e1a011af79ed04506','format':'iframe','height':90,'width':728};
+<\/script>
+<script src="https://yawncollaremotion.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"><\/script>
+`;
 }
 </script>
 
