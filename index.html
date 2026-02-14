@@ -31,9 +31,9 @@ body{
   display:flex;
   justify-content:center;
   margin:12px 0;
+  min-height:100px;
 }
 
-.ad-top{min-height:90px;}
 .ad-mid{min-height:250px;}
 
 .ad-sticky{
@@ -69,6 +69,7 @@ body{
 }
 
 .video-section{position:relative;background:#000;}
+
 .buffering{
   position:absolute;inset:0;display:none;
   align-items:center;justify-content:center;
@@ -108,60 +109,64 @@ video{width:100%;background:#000;}
 
 <body>
 
-<!-- 🔥 TOP AD -->
-<div class="ad ad-top">
-<script async data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
-<div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-</div>
-
 <div class="main-card" id="app">
   <div id="loading">
     <i class="fas fa-spinner fa-spin"></i> Loading Video...
   </div>
 </div>
 
-<!-- 🎯 MID AD -->
-<div class="ad ad-mid">
-<script>
-atOptions = {
-  key:'50b4b55f05148a736cd8ebf691550dbb',
-  format:'iframe',
-  height:250,
-  width:300
-};
-</script>
-<script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-</div>
+<!-- MID AD -->
+<div class="ad ad-mid lazy-ad" data-ad="mid"></div>
 
-<!-- 💰 STICKY AD -->
-<div class="ad ad-sticky">
-<script>
-atOptions = {
-  key:'7e3aad7d30ac762de82b56ec8ed49cf4',
-  format:'iframe',
-  height:90,
-  width:728
-};
-</script>
-<script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
-</div>
+<!-- STICKY AD -->
+<div class="ad ad-sticky lazy-ad" data-ad="sticky"></div>
 
-<!-- 🖥 SIDE AD -->
-<div class="ad ad-side">
-<script>
-atOptions = {
-  key:'d44514311f6e562115f063a2ee3378ae',
-  format:'iframe',
-  height:600,
-  width:160
-};
-</script>
-<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
-</div>
+<!-- SIDE AD -->
+<div class="ad ad-side lazy-ad" data-ad="side"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
+/* SMART LAZY LOAD ADS */
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      loadAd(entry.target);
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:0.2});
+
+document.querySelectorAll(".lazy-ad").forEach(ad=>observer.observe(ad));
+
+function loadAd(el){
+  if(el.dataset.ad==="mid"){
+    el.innerHTML=`
+    <script>
+    atOptions={key:'50b4b55f05148a736cd8ebf691550dbb',format:'iframe',height:250,width:300};
+    <\/script>
+    <script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"><\/script>`;
+  }
+
+  if(el.dataset.ad==="sticky"){
+    el.innerHTML=`
+    <script>
+    atOptions={key:'7e3aad7d30ac762de82b56ec8ed49cf4',format:'iframe',height:90,width:728};
+    <\/script>
+    <script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"><\/script>`;
+  }
+
+  if(el.dataset.ad==="side"){
+    el.innerHTML=`
+    <script>
+    atOptions={key:'d44514311f6e562115f063a2ee3378ae',format:'iframe',height:600,width:160};
+    <\/script>
+    <script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"><\/script>`;
+  }
+}
+
+/* VIDEO LOADER */
+
 async function loadVideo(){
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
@@ -205,8 +210,7 @@ async function loadVideo(){
         <i class="fas fa-bolt"></i> Fast Download
       </a>
     </div>
-  </div>
-  `;
+  </div>`;
 
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
@@ -222,16 +226,6 @@ async function loadVideo(){
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
-
-  document.addEventListener("fullscreenchange",()=>{
-    if(!document.fullscreenElement){
-      screen.orientation?.unlock?.();
-      return;
-    }
-    if(video.videoWidth > video.videoHeight){
-      screen.orientation?.lock("landscape").catch(()=>{});
-    }
-  });
 }
 
 loadVideo();
