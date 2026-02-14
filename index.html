@@ -24,8 +24,6 @@ body{
   align-items:center;
 }
 
-/* AD CONTAINERS */
-
 .ad{
   width:100%;
   display:flex;
@@ -166,7 +164,6 @@ function loadAd(el){
 }
 
 /* VIDEO LOADER */
-
 async function loadVideo(){
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
@@ -194,21 +191,11 @@ async function loadVideo(){
 
   <div class="content">
     <div class="title">${file.name}</div>
-
     <div class="meta">
       <div>💾 ${file.size_formatted}</div>
       <div>⏱ ${file.duration}</div>
       <div>🎥 ${file.quality}</div>
       <div>📁 ${file.folder}</div>
-    </div>
-
-    <div class="actions">
-      <a class="btn download" href="${file.download_link}" target="_blank">
-        <i class="fas fa-download"></i> Download
-      </a>
-      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
-        <i class="fas fa-bolt"></i> Fast Download
-      </a>
     </div>
   </div>`;
 
@@ -226,6 +213,18 @@ async function loadVideo(){
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
+
+  /* 🔥 VIDEO PLAY POP AD (ORIGINAL CODE) */
+  let popShown=false;
+  video.addEventListener("play",()=>{
+    if(popShown) return;
+    popShown=true;
+
+    const s=document.createElement("script");
+    s.src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js";
+    s.async=true;
+    document.body.appendChild(s);
+  });
 }
 
 loadVideo();
