@@ -54,11 +54,17 @@ video{width:100%;background:#000;}
 .download{background:#3b82f6}
 .fast{background:#10b981}
 
-#ad-area{margin-top:20px;text-align:center;}
+#ad-area{
+  margin-top:20px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  align-items:center;
+}
 
 #loading{padding:100px;text-align:center;}
 
-/* sticky banner */
 #sticky-ad{
   position:fixed;
   bottom:0;left:0;width:100%;
@@ -127,9 +133,10 @@ async function loadVideo(){
       </a>
     </div>
 
-    <!-- ALL INLINE ADS HERE -->
+    <!-- INLINE ADS -->
     <div id="ad-area">
       <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+      <div id="ad-300x250"></div>
       <div id="container-d44514311f6e562115f063a2ee3378ae"></div>
     </div>
 
@@ -155,7 +162,6 @@ async function loadVideo(){
 loadVideo();
 </script>
 
-<!-- DELAYED ADS -->
 <script>
 setTimeout(function(){
 
@@ -163,6 +169,17 @@ setTimeout(function(){
 var s0=document.createElement("script");
 s0.src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js";
 document.body.appendChild(s0);
+
+// 300x250
+var box=document.getElementById("ad-300x250");
+
+var o3=document.createElement("script");
+o3.innerHTML=`atOptions={key:'50b4b55f05148a736cd8ebf691550dbb',format:'iframe',height:250,width:300,params:{}}`;
+box.appendChild(o3);
+
+var s3=document.createElement("script");
+s3.src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js";
+box.appendChild(s3);
 
 // 160x300
 var o1=document.createElement("script");
@@ -173,7 +190,7 @@ var s1=document.createElement("script");
 s1.src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js";
 document.body.appendChild(s1);
 
-// sticky 728x90 (unchanged)
+// sticky
 var sticky=document.getElementById("sticky-ad");
 
 var o2=document.createElement("script");
