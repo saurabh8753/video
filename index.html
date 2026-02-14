@@ -8,28 +8,17 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-}
+:root{--bg:#0f172a;--card:#1e293b;}
 
 body{
-  margin:0;
-  padding:20px;
-  background:var(--bg);
-  font-family:system-ui,Segoe UI;
-  color:#fff;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  margin:0;padding:20px;background:var(--bg);
+  font-family:system-ui,Segoe UI;color:#fff;
+  display:flex;flex-direction:column;align-items:center;
 }
 
 .main-card{
-  width:100%;
-  max-width:1000px;
-  background:var(--card);
-  border-radius:16px;
-  overflow:hidden;
+  width:100%;max-width:1000px;background:var(--card);
+  border-radius:16px;overflow:hidden;
   box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 
@@ -41,9 +30,7 @@ body{
 }
 
 video{width:100%;background:#000;}
-
 .content{padding:22px;}
-
 .title{font-size:1.3rem;margin-bottom:12px;}
 
 .meta{
@@ -54,7 +41,6 @@ video{width:100%;background:#000;}
 }
 
 .meta div{font-size:.9rem;color:#94a3b8;}
-
 .actions{display:flex;gap:14px;flex-wrap:wrap;}
 
 .btn{
@@ -75,15 +61,11 @@ video{width:100%;background:#000;}
 /* sticky banner */
 #sticky-ad{
   position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
+  bottom:0;left:0;width:100%;
   background:#000;
-  display:flex;
-  justify-content:center;
+  display:flex;justify-content:center;
   align-items:center;
-  z-index:9999;
-  padding:6px 0;
+  z-index:9999;padding:6px 0;
 }
 </style>
 </head>
@@ -145,6 +127,7 @@ async function loadVideo(){
       </a>
     </div>
 
+    <!-- ALL INLINE ADS HERE -->
     <div id="ad-area">
       <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
       <div id="container-d44514311f6e562115f063a2ee3378ae"></div>
@@ -167,22 +150,12 @@ async function loadVideo(){
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
-
-  document.addEventListener("fullscreenchange",()=>{
-    if(!document.fullscreenElement){
-      screen.orientation?.unlock?.();
-      return;
-    }
-    if(video.videoWidth > video.videoHeight){
-      screen.orientation?.lock("landscape").catch(()=>{});
-    }
-  });
 }
 
 loadVideo();
 </script>
 
-<!-- ✅ DELAYED ADS -->
+<!-- DELAYED ADS -->
 <script>
 setTimeout(function(){
 
@@ -200,7 +173,7 @@ var s1=document.createElement("script");
 s1.src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js";
 document.body.appendChild(s1);
 
-// sticky 728x90
+// sticky 728x90 (unchanged)
 var sticky=document.getElementById("sticky-ad");
 
 var o2=document.createElement("script");
