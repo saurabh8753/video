@@ -3,21 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Default Player</title>
+<title>Z-Tera Player</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-}
-
 body{
   margin:0;
   padding:20px;
-  background:var(--bg);
-  font-family:system-ui,Segoe UI;
+  background:#0f172a;
+  font-family:system-ui;
   color:#fff;
   display:flex;
   flex-direction:column;
@@ -27,263 +22,97 @@ body{
 .main-card{
   width:100%;
   max-width:1000px;
-  background:var(--card);
+  background:#1e293b;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 
-.video-section{
-  position:relative;
-  background:#000;
-}
-
-.buffering{
-  position:absolute;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.4);
-  z-index:5;
-}
-
-.buffering i{
-  font-size:46px;
-}
-
-video{
-  width:100%;
-  background:#000;
-}
-
-.content{
-  padding:22px;
-}
-
-.title{
-  font-size:1.3rem;
-  margin-bottom:12px;
-}
-
-.meta{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:14px;
-  background:rgba(255,255,255,.05);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
-}
-
-.meta div{
-  font-size:.9rem;
-  color:#94a3b8;
-}
-
-.actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  flex:1;
-  min-width:200px;
-  padding:14px;
-  border-radius:12px;
-  text-decoration:none;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  color:#fff;
-}
-
-.download{background:#3b82f6}
-.fast{background:#10b981}
-
-#loading{
-  padding:100px;
-  text-align:center;
-}
+video{width:100%;background:#000}
+.content{padding:20px}
+#error{padding:40px;text-align:center;color:#f87171}
+#ad{margin:20px 0}
 </style>
 </head>
 
 <body>
 
 <div class="main-card" id="app">
-  <div id="loading">
+  <div style="padding:100px;text-align:center">
     <i class="fas fa-spinner fa-spin"></i> Loading Video...
   </div>
 </div>
 
+<div id="ad"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
+function timeoutFetch(url,ms=8000){
+  return Promise.race([
+    fetch(url),
+    new Promise((_,reject)=>setTimeout(()=>reject("timeout"),ms))
+  ]);
+}
+
 async function loadVideo(){
-  const app=document.getElementById("app");
-  const videoUrl=new URLSearchParams(location.search).get("url");
+  try{
+    const app=document.getElementById("app");
+    const videoUrl=new URLSearchParams(location.search).get("url");
 
-  if(!videoUrl){
-    app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
-    return;
-  }
+    if(!videoUrl) throw "Missing URL";
 
-  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-  const res=await fetch(api);
-  const data=await res.json();
+    const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
 
-  if(data.status!=="success") return;
+    const res=await timeoutFetch(api);
+    if(!res.ok) throw "API blocked";
 
-  const file=data.list[0];
-  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+    const data=await res.json();
+    if(data.status!=="success") throw "API error";
 
-  app.innerHTML=`
-  <div class="video-section">
-    <div class="buffering" id="buffering">
-      <i class="fas fa-spinner fa-spin"></i>
-    </div>
+    const file=data.list[0];
+    const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+
+    app.innerHTML=`
     <video id="video" controls playsinline poster="${file.thumbnail}"></video>
-  </div>
-
-  <div class="content">
-    <div class="title">${file.name}</div>
-
-    <div class="meta">
-      <div>💾 ${file.size_formatted}</div>
-      <div>⏱ ${file.duration}</div>
-      <div>🎥 ${file.quality}</div>
-      <div>📁 ${file.folder}</div>
+    <div class="content">
+      <b>${file.name}</b><br><br>
+      Size: ${file.size_formatted}<br>
+      Duration: ${file.duration}
     </div>
+    `;
 
-    <div class="actions">
-      <a class="btn download" href="${file.download_link}" target="_blank">
-        <i class="fas fa-download"></i> Download
-      </a>
-      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
-        <i class="fas fa-bolt"></i> Fast Download
-      </a>
-    </div>
-  </div>
-  `;
+    const video=document.getElementById("video");
 
-  const video=document.getElementById("video");
-  const loader=document.getElementById("buffering");
+    if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=stream;
+    }else if(Hls.isSupported()){
+      const hls=new Hls();
+      hls.loadSource(stream);
+      hls.attachMedia(video);
+    }
 
-  /* HLS */
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=stream;
-  }else if(Hls.isSupported()){
-    const hls=new Hls();
-    hls.loadSource(stream);
-    hls.attachMedia(video);
+  }catch(err){
+    document.getElementById("app").innerHTML=`
+      <div id="error">
+        ❌ Video load failed<br><br>
+        Reason: ${err}
+      </div>`;
   }
-
-  /* Spinner */
-  video.addEventListener("waiting",()=>loader.style.display="flex");
-  video.addEventListener("playing",()=>loader.style.display="none");
-  video.addEventListener("canplay",()=>loader.style.display="none");
-
-  /* 🔒 AUTO ROTATE FIX (REEL SAFE) */
-  document.addEventListener("fullscreenchange",()=>{
-    if(!document.fullscreenElement){
-      screen.orientation?.unlock?.();
-      return;
-    }
-
-    // Sirf landscape video me hi rotate
-    if(video.videoWidth > video.videoHeight){
-      screen.orientation?.lock("landscape").catch(()=>{});
-    }
-  });
 }
 
 loadVideo();
+
+
+// Ads load after everything safe
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("ad").innerHTML=`
+    <script async data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"><\/script>
+    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+    `;
+  },2000);
+};
 </script>
 
-<!-- ✅ AD CODE (UNCHANGED, BODY SECTION) -->
-<script async="async" data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
-<div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>  
-<script>
-  atOptions = {
-    'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script><script>
-  atOptions = {
-    'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : 'd44514311f6e562115f063a2ee3378ae',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script><script>
-  atOptions = {
-    'key' : 'd44514311f6e562115f063a2ee3378ae',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
-  
 </body>
 </html>
