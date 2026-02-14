@@ -24,6 +24,41 @@ body{
   align-items:center;
 }
 
+/* AD CONTAINERS */
+
+.ad{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin:12px 0;
+}
+
+.ad-top{min-height:90px;}
+.ad-mid{min-height:250px;}
+
+.ad-sticky{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#000;
+  z-index:9999;
+  min-height:90px;
+}
+
+.ad-side{
+  position:fixed;
+  right:10px;
+  top:120px;
+  width:160px;
+  min-height:600px;
+  display:none;
+}
+
+@media(min-width:1100px){
+  .ad-side{display:block;}
+}
+
 .main-card{
   width:100%;
   max-width:1000px;
@@ -48,18 +83,14 @@ body{
   z-index:5;
 }
 
-.buffering i{
-  font-size:46px;
-}
+.buffering i{font-size:46px;}
 
 video{
   width:100%;
   background:#000;
 }
 
-.content{
-  padding:22px;
-}
+.content{padding:22px;}
 
 .title{
   font-size:1.3rem;
@@ -113,10 +144,30 @@ video{
 
 <body>
 
+<!-- 🔥 TOP HIGH CPM AD -->
+<div class="ad ad-top" id="adTop">
+  <!-- Paste Top Banner Ad Here -->
+</div>
+
 <div class="main-card" id="app">
   <div id="loading">
     <i class="fas fa-spinner fa-spin"></i> Loading Video...
   </div>
+</div>
+
+<!-- 🎯 VIDEO BELOW AD -->
+<div class="ad ad-mid" id="adMid">
+  <!-- Paste Mid Ad Here -->
+</div>
+
+<!-- 💰 STICKY BOTTOM AD -->
+<div class="ad ad-sticky" id="adSticky">
+  <!-- Paste Sticky Ad Here -->
+</div>
+
+<!-- 🖥 DESKTOP SIDE AD -->
+<div class="ad ad-side" id="adSide">
+  <!-- Paste Side Ad Here -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -172,7 +223,6 @@ async function loadVideo(){
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  /* HLS */
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -181,19 +231,15 @@ async function loadVideo(){
     hls.attachMedia(video);
   }
 
-  /* Spinner */
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
-  /* 🔒 AUTO ROTATE FIX (REEL SAFE) */
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
       return;
     }
-
-    // Sirf landscape video me hi rotate
     if(video.videoWidth > video.videoHeight){
       screen.orientation?.lock("landscape").catch(()=>{});
     }
@@ -203,87 +249,5 @@ async function loadVideo(){
 loadVideo();
 </script>
 
-<!-- ✅ AD CODE (UNCHANGED, BODY SECTION) -->
-<script async="async" data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
-<div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://www.highperformanceformat.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : '50b4b55f05148a736cd8ebf691550dbb',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>  
-<script>
-  atOptions = {
-    'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script><script>
-  atOptions = {
-    'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
-<script>
-  atOptions = {
-    'key' : 'd44514311f6e562115f063a2ee3378ae',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script><script>
-  atOptions = {
-    'key' : 'd44514311f6e562115f063a2ee3378ae',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
-  
 </body>
 </html>
