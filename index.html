@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>(function(s){s.dataset.zone='10162932',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>  
+
+<!-- Vignette Script -->
+<script>
+(function(s){
+  s.dataset.zone='10162932',
+  s.src='https://groleegni.net/vignette.min.js'
+})
+([document.documentElement, document.body]
+.filter(Boolean)
+.pop()
+.appendChild(document.createElement('script')))
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Default Player</title>
@@ -124,6 +136,7 @@ video{
 
 <script>
 async function loadVideo(){
+
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
 
@@ -135,18 +148,20 @@ async function loadVideo(){
   const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
   const res=await fetch(api);
   const data=await res.json();
-
   if(data.status!=="success") return;
 
   const file=data.list[0];
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+
+  const storageKey="video-progress-"+file.name;
+  const triggerKey="smart-triggered-"+file.name;
 
   app.innerHTML=`
   <div class="video-section">
     <div class="buffering" id="buffering">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
-    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+    <video id="video" controls playsinline muted poster="${file.thumbnail}"></video>
   </div>
 
   <div class="content">
@@ -173,7 +188,7 @@ async function loadVideo(){
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  /* HLS */
+  /* HLS Support */
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -187,36 +202,54 @@ async function loadVideo(){
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
-  /* 🔒 Auto Rotate */
+  /* Resume Position */
+  video.addEventListener("loadedmetadata",()=>{
+    const savedTime=localStorage.getItem(storageKey);
+    if(savedTime){
+      video.currentTime=parseFloat(savedTime);
+    }
+  });
+
+  /* Save Progress */
+  video.addEventListener("timeupdate",()=>{
+    localStorage.setItem(storageKey,video.currentTime);
+  });
+
+  /* 50% Smart Trigger */
+  video.addEventListener("timeupdate",()=>{
+    if(!video.duration) return;
+
+    const progress=(video.currentTime/video.duration)*100;
+    const already=sessionStorage.getItem(triggerKey);
+
+    if(progress>=50 && !already){
+      sessionStorage.setItem(triggerKey,"true");
+      localStorage.setItem(storageKey,video.currentTime);
+
+      const smartLink="https://yawncollaremotion.com/yvc33vhcr?key=392e8fc7e7a5aa8ee592724f8804ce9a";
+      window.open(smartLink,"_blank");
+    }
+  });
+
+  /* Auto Play When Back */
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden){
+      const savedTime=localStorage.getItem(storageKey);
+      if(savedTime){
+        video.currentTime=parseFloat(savedTime);
+      }
+      video.play().catch(()=>{});
+    }
+  });
+
+  /* Auto Rotate */
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
       return;
     }
-    if(video.videoWidth > video.videoHeight){
+    if(video.videoWidth>video.videoHeight){
       screen.orientation?.lock("landscape").catch(()=>{});
-    }
-  });
-
-  /* 🎯 50% Smart Link Trigger */
-  let smartTriggered = false;
-
-  video.addEventListener("timeupdate", () => {
-    if (!video.duration) return;
-
-    const progress = (video.currentTime / video.duration) * 100;
-
-    if (progress >= 50 && !smartTriggered) {
-      smartTriggered = true;
-
-      const smartLink = "https://yawncollaremotion.com/yvc33vhcr?key=392e8fc7e7a5aa8ee592724f8804ce9a"; // 👈 yahan apna link daalo
-      
-      const newTab = window.open(smartLink, "_blank");
-
-      // Fallback if popup blocked
-      if (!newTab || newTab.closed || typeof newTab.closed == "undefined") {
-        window.location.href = smartLink;
-      }
     }
   });
 
