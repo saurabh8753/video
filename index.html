@@ -1,31 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Vignette Script -->
-<script>
-(function(s){
-  s.dataset.zone='10162932',
-  s.src='https://groleegni.net/vignette.min.js'
-})
-([document.documentElement, document.body]
-.filter(Boolean)
-.pop()
-.appendChild(document.createElement('script')))
-</script>
-
+<script>(function(s){s.dataset.zone='10162932',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Default Player</title>
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
 <style>
 :root{
   --bg:#0f172a;
   --card:#1e293b;
 }
-
 body{
   margin:0;
   padding:20px;
@@ -36,7 +21,6 @@ body{
   flex-direction:column;
   align-items:center;
 }
-
 .main-card{
   width:100%;
   max-width:1000px;
@@ -45,12 +29,10 @@ body{
   overflow:hidden;
   box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
-
 .video-section{
   position:relative;
   background:#000;
 }
-
 .buffering{
   position:absolute;
   inset:0;
@@ -60,25 +42,20 @@ body{
   background:rgba(0,0,0,.4);
   z-index:5;
 }
-
 .buffering i{
   font-size:46px;
 }
-
 video{
   width:100%;
   background:#000;
 }
-
 .content{
   padding:22px;
 }
-
 .title{
   font-size:1.3rem;
   margin-bottom:12px;
 }
-
 .meta{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -88,18 +65,15 @@ video{
   border-radius:12px;
   margin-bottom:18px;
 }
-
 .meta div{
   font-size:.9rem;
   color:#94a3b8;
 }
-
 .actions{
   display:flex;
   gap:14px;
   flex-wrap:wrap;
 }
-
 .btn{
   flex:1;
   min-width:200px;
@@ -113,17 +87,14 @@ video{
   gap:10px;
   color:#fff;
 }
-
 .download{background:#3b82f6}
 .fast{background:#10b981}
-
 #loading{
   padding:100px;
   text-align:center;
 }
 </style>
 </head>
-
 <body>
 
 <div class="main-card" id="app">
@@ -133,47 +104,35 @@ video{
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 <script>
 async function loadVideo(){
-
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
-
   if(!videoUrl){
     app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
     return;
   }
-
   const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
   const res=await fetch(api);
   const data=await res.json();
   if(data.status!=="success") return;
-
   const file=data.list[0];
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
-
-  const storageKey="video-progress-"+file.name;
-  const triggerKey="smart-triggered-"+file.name;
-
   app.innerHTML=`
   <div class="video-section">
     <div class="buffering" id="buffering">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
-    <video id="video" controls playsinline muted poster="${file.thumbnail}"></video>
+    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
   </div>
-
   <div class="content">
     <div class="title">${file.name}</div>
-
     <div class="meta">
       <div>💾 ${file.size_formatted}</div>
       <div>⏱ ${file.duration}</div>
       <div>🎥 ${file.quality}</div>
       <div>📁 ${file.folder}</div>
     </div>
-
     <div class="actions">
       <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
@@ -184,11 +143,9 @@ async function loadVideo(){
     </div>
   </div>
   `;
-
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  /* HLS Support */
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -197,64 +154,20 @@ async function loadVideo(){
     hls.attachMedia(video);
   }
 
-  /* Spinner */
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
-  /* Resume Position */
-  video.addEventListener("loadedmetadata",()=>{
-    const savedTime=localStorage.getItem(storageKey);
-    if(savedTime){
-      video.currentTime=parseFloat(savedTime);
-    }
-  });
-
-  /* Save Progress */
-  video.addEventListener("timeupdate",()=>{
-    localStorage.setItem(storageKey,video.currentTime);
-  });
-
-  /* 50% Smart Trigger */
-  video.addEventListener("timeupdate",()=>{
-    if(!video.duration) return;
-
-    const progress=(video.currentTime/video.duration)*100;
-    const already=sessionStorage.getItem(triggerKey);
-
-    if(progress>=50 && !already){
-      sessionStorage.setItem(triggerKey,"true");
-      localStorage.setItem(storageKey,video.currentTime);
-
-      const smartLink="https://yawncollaremotion.com/yvc33vhcr?key=392e8fc7e7a5aa8ee592724f8804ce9a";
-      window.open(smartLink,"_blank");
-    }
-  });
-
-  /* Auto Play When Back */
-  document.addEventListener("visibilitychange",()=>{
-    if(!document.hidden){
-      const savedTime=localStorage.getItem(storageKey);
-      if(savedTime){
-        video.currentTime=parseFloat(savedTime);
-      }
-      video.play().catch(()=>{});
-    }
-  });
-
-  /* Auto Rotate */
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
       return;
     }
-    if(video.videoWidth>video.videoHeight){
+    if(video.videoWidth > video.videoHeight){
       screen.orientation?.lock("landscape").catch(()=>{});
     }
   });
-
 }
-
 loadVideo();
 </script>
 
