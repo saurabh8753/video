@@ -4,27 +4,28 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="monetag" content="08cc2121e14b9672d636611a75df91c5">
 <title>Z-Tera Default Player</title>
 
-<link rel="preconnect" href="https://groleegni.net">
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<script defer>
-window.addEventListener("DOMContentLoaded",function(){
-  var s=document.createElement("script");
-  s.dataset.zone="10162932";
-  s.src="https://groleegni.net/vignette.min.js";
-  document.body.appendChild(s);
-});
+<!-- 🔥 Original Vignette Ad Code -->
+<script>
+(function(s){
+  s.dataset.zone='10659940',
+  s.src='https://gizokraijaw.net/vignette.min.js'
+})
+([document.documentElement, document.body]
+  .filter(Boolean)
+  .pop()
+  .appendChild(document.createElement('script')));
 </script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 :root{--bg:#0f172a;--card:#1e293b}
 body{margin:0;padding:20px;background:var(--bg);font-family:system-ui;color:#fff;display:flex;justify-content:center}
 .main-card{width:100%;max-width:1000px;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.4)}
 .video-section{position:relative;background:#000}
+.video-wrapper{position:relative}
 .buffering{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:5}
 video{width:100%;background:#000}
 .content{padding:20px}
@@ -36,6 +37,42 @@ video{width:100%;background:#000}
 .download{background:#3b82f6}
 .fast{background:#10b981}
 #loading{padding:90px;text-align:center}
+
+/* 🎬 YouTube Style Bottom Banner */
+.yt-banner-ad{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:none;
+  background:linear-gradient(to top,rgba(0,0,0,.85),rgba(0,0,0,.4),transparent);
+  padding:15px 10px 12px;
+  box-sizing:border-box;
+  animation:slideUp .4s ease;
+}
+
+.yt-ad-content{
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.yt-ad-text{color:#fff;font-size:14px;font-weight:500}
+.yt-ad-btn{background:#ff0000;color:#fff;padding:6px 14px;border-radius:4px;text-decoration:none;font-size:13px;font-weight:600}
+.yt-close{color:#ccc;cursor:pointer;font-size:14px}
+
+@keyframes slideUp{
+  from{transform:translateY(100%);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+
+@media(max-width:600px){
+  .yt-ad-text{font-size:12px}
+  .yt-ad-btn{padding:5px 10px;font-size:12px}
+}
 </style>
 </head>
 
@@ -72,16 +109,32 @@ async function loadVideo(){
       <div class="buffering" id="buffering">
         <i class="fas fa-spinner fa-spin"></i>
       </div>
-      <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+
+      <div class="video-wrapper">
+        <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+
+        <!-- 🎯 YouTube Style Bottom Banner -->
+        <div class="yt-banner-ad" id="ytBanner">
+          <div class="yt-ad-content">
+            <span class="yt-ad-text">🔥 Special Offer – Click Now</span>
+            <a href="YOUR_AD_LINK_HERE" target="_blank" class="yt-ad-btn">Learn More</a>
+            <span class="yt-close" id="ytClose">✕</span>
+          </div>
+        </div>
+
+      </div>
     </div>
+
     <div class="content">
       <div class="title">${file.name}</div>
+
       <div class="meta">
         <div>💾 ${file.size_formatted}</div>
         <div>⏱ ${file.duration}</div>
         <div>🎥 ${file.quality}</div>
         <div>📁 ${file.folder}</div>
       </div>
+
       <div class="actions">
         <a class="btn download" href="${file.download_link}" target="_blank">
           <i class="fas fa-download"></i> Download
@@ -106,6 +159,19 @@ async function loadVideo(){
     video.addEventListener("waiting",()=>loader.style.display="flex");
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
+
+    // 🎬 Banner Logic
+    const ytBanner=document.getElementById("ytBanner");
+    const ytClose=document.getElementById("ytClose");
+
+    video.addEventListener("play",()=>{
+      setTimeout(()=>{
+        ytBanner.style.display="block";
+        setTimeout(()=>ytBanner.style.display="none",15000);
+      },5000);
+    });
+
+    ytClose.onclick=()=>ytBanner.style.display="none";
 
   }catch{
     app.innerHTML="<div style='padding:40px;text-align:center'>Video Load Failed</div>";
