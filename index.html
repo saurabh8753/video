@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Default Player</title>
 
-<!-- 🔥 Original Vignette Ad Code -->
+<!-- 🔥 Original Vignette Ad -->
 <script>
 (function(s){
   s.dataset.zone='10659940',
@@ -32,150 +31,185 @@ video{width:100%;background:#000}
 .title{font-size:1.2rem;margin-bottom:12px}
 .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;background:rgba(255,255,255,.05);padding:12px;border-radius:10px;margin-bottom:16px}
 .meta div{font-size:.85rem;color:#94a3b8}
-.actions{display:flex;gap:12px;flex-wrap:wrap}
-.btn{flex:1;min-width:180px;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff}
-.download{background:#3b82f6}
-.fast{background:#10b981}
-#loading{padding:90px;text-align:center}
 
-/* 🎬 YouTube Style Bottom Banner */
+/* 🔻 Rotating Bottom Banner */
 .yt-banner-ad{
-  position:absolute;
-  bottom:0;
-  left:0;
-  width:100%;
+  position:absolute;bottom:0;left:0;width:100%;
   display:none;
-  background:linear-gradient(to top,rgba(0,0,0,.85),rgba(0,0,0,.4),transparent);
-  padding:15px 10px 12px;
-  box-sizing:border-box;
-  animation:slideUp .4s ease;
+  background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.4),transparent);
+  padding:12px;
 }
+.yt-ad-content{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:auto}
+.yt-ad-text{color:#fff;font-size:14px}
+.yt-ad-btn{background:#ff0000;color:#fff;padding:6px 14px;border-radius:4px;text-decoration:none;font-size:13px}
+.yt-close{color:#ccc;cursor:pointer}
 
-.yt-ad-content{
-  max-width:900px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+/* 🔻 Mid Roll Popup */
+.mid-popup{
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.85);
+  z-index:40;
 }
-
-.yt-ad-text{color:#fff;font-size:14px;font-weight:500}
-.yt-ad-btn{background:#ff0000;color:#fff;padding:6px 14px;border-radius:4px;text-decoration:none;font-size:13px;font-weight:600}
-.yt-close{color:#ccc;cursor:pointer;font-size:14px}
-
-@keyframes slideUp{
-  from{transform:translateY(100%);opacity:0}
-  to{transform:translateY(0);opacity:1}
+.mid-box{
+  background:#111;padding:28px;width:90%;max-width:400px;
+  border-radius:12px;text-align:center;
 }
-
-@media(max-width:600px){
-  .yt-ad-text{font-size:12px}
-  .yt-ad-btn{padding:5px 10px;font-size:12px}
-}
+.mid-box h3{margin:0 0 10px}
+.mid-box p{font-size:14px;color:#ccc;margin-bottom:18px}
+.mid-btn{display:inline-block;background:#ff0000;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none;margin-bottom:15px}
+.skip-btn{display:block;margin:auto;padding:6px 14px;background:#222;color:#fff;border:1px solid #444;border-radius:4px;cursor:pointer;font-size:13px}
+.skip-btn.disabled{opacity:.5;pointer-events:none}
 </style>
 </head>
 
 <body>
 
 <div class="main-card" id="app">
-  <div id="loading">
-    <i class="fas fa-spinner fa-spin"></i> Loading Video...
-  </div>
+<div id="loading"><i class="fas fa-spinner fa-spin"></i> Loading Video...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
 async function loadVideo(){
-  const app=document.getElementById("app");
-  const videoUrl=new URLSearchParams(location.search).get("url");
+const app=document.getElementById("app");
+const videoUrl=new URLSearchParams(location.search).get("url");
 
-  if(!videoUrl){
-    app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
-    return;
-  }
+if(!videoUrl){
+app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
+return;
+}
 
-  try{
-    const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
-    const data=await res.json();
-    if(data.status!=="success") throw new Error();
+try{
+const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
+const data=await res.json();
+if(data.status!=="success") throw new Error();
 
-    const file=data.list[0];
-    const stream=file.fast_stream_url?.["480p"]||file.stream_url;
+const file=data.list[0];
+const stream=file.fast_stream_url?.["480p"]||file.stream_url;
 
-    app.innerHTML=`
-    <div class="video-section">
-      <div class="buffering" id="buffering">
-        <i class="fas fa-spinner fa-spin"></i>
-      </div>
+app.innerHTML=`
+<div class="video-section">
+<div class="buffering" id="buffering">
+<i class="fas fa-spinner fa-spin"></i>
+</div>
 
-      <div class="video-wrapper">
-        <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+<div class="video-wrapper">
+<video id="video" controls playsinline poster="${file.thumbnail}"></video>
 
-        <!-- 🎯 YouTube Style Bottom Banner -->
-        <div class="yt-banner-ad" id="ytBanner">
-          <div class="yt-ad-content">
-            <span class="yt-ad-text">🔥 Special Offer – Click Now</span>
-            <a href="YOUR_AD_LINK_HERE" target="_blank" class="yt-ad-btn">Learn More</a>
-            <span class="yt-close" id="ytClose">✕</span>
-          </div>
-        </div>
+<!-- Rotating Banner -->
+<div class="yt-banner-ad" id="ytBanner">
+<div class="yt-ad-content">
+<span class="yt-ad-text" id="adText"></span>
+<a href="#" target="_blank" id="adBtn" class="yt-ad-btn">Learn More</a>
+<span class="yt-close" id="ytClose">✕</span>
+</div>
+</div>
 
-      </div>
-    </div>
+<!-- Mid Roll Popup -->
+<div class="mid-popup" id="midPopup">
+<div class="mid-box">
+<h3>🔥 Sponsored Message</h3>
+<p>Exclusive Offer – Limited Time Only!</p>
+<a href="https://your-affiliate-link.com" target="_blank" class="mid-btn">Claim Offer</a>
+<button class="skip-btn disabled" id="skipBtn">Skip Ad in 5...</button>
+</div>
+</div>
 
-    <div class="content">
-      <div class="title">${file.name}</div>
+</div>
+<div class="content">
+<div class="title">${file.name}</div>
+<div class="meta">
+<div>💾 ${file.size_formatted}</div>
+<div>⏱ ${file.duration}</div>
+<div>🎥 ${file.quality}</div>
+<div>📁 ${file.folder}</div>
+</div>
+</div>`;
 
-      <div class="meta">
-        <div>💾 ${file.size_formatted}</div>
-        <div>⏱ ${file.duration}</div>
-        <div>🎥 ${file.quality}</div>
-        <div>📁 ${file.folder}</div>
-      </div>
+const video=document.getElementById("video");
+const loader=document.getElementById("buffering");
 
-      <div class="actions">
-        <a class="btn download" href="${file.download_link}" target="_blank">
-          <i class="fas fa-download"></i> Download
-        </a>
-        <a class="btn fast" href="${file.fast_download_link}" target="_blank">
-          <i class="fas fa-bolt"></i> Fast Download
-        </a>
-      </div>
-    </div>`;
+if(video.canPlayType("application/vnd.apple.mpegurl")){
+video.src=stream;
+}else if(Hls.isSupported()){
+const hls=new Hls();
+hls.loadSource(stream);
+hls.attachMedia(video);
+}
 
-    const video=document.getElementById("video");
-    const loader=document.getElementById("buffering");
+video.addEventListener("waiting",()=>loader.style.display="flex");
+video.addEventListener("playing",()=>loader.style.display="none");
 
-    if(video.canPlayType("application/vnd.apple.mpegurl")){
-      video.src=stream;
-    }else if(Hls.isSupported()){
-      const hls=new Hls();
-      hls.loadSource(stream);
-      hls.attachMedia(video);
-    }
+/* 💰 Rotating Banner Ads */
+const ads=[
+{text:"🔥 Win ₹500 Instantly",link:"https://affiliate1.com"},
+{text:"🎁 Premium OTT Access",link:"https://affiliate2.com"},
+{text:"💰 Earn Watching Videos",link:"https://affiliate3.com"}
+];
 
-    video.addEventListener("waiting",()=>loader.style.display="flex");
-    video.addEventListener("playing",()=>loader.style.display="none");
-    video.addEventListener("canplay",()=>loader.style.display="none");
+const ytBanner=document.getElementById("ytBanner");
+const adText=document.getElementById("adText");
+const adBtn=document.getElementById("adBtn");
+const ytClose=document.getElementById("ytClose");
 
-    // 🎬 Banner Logic
-    const ytBanner=document.getElementById("ytBanner");
-    const ytClose=document.getElementById("ytClose");
+let adIndex=0,rotation;
 
-    video.addEventListener("play",()=>{
-      setTimeout(()=>{
-        ytBanner.style.display="block";
-        setTimeout(()=>ytBanner.style.display="none",15000);
-      },5000);
-    });
+function showAd(){
+const ad=ads[adIndex];
+adText.textContent=ad.text;
+adBtn.href=ad.link;
+ytBanner.style.display="block";
+adIndex=(adIndex+1)%ads.length;
+}
 
-    ytClose.onclick=()=>ytBanner.style.display="none";
+video.addEventListener("play",()=>{
+setTimeout(()=>{
+showAd();
+rotation=setInterval(showAd,8000);
+},5000);
+});
 
-  }catch{
-    app.innerHTML="<div style='padding:40px;text-align:center'>Video Load Failed</div>";
-  }
+ytClose.onclick=()=>{ytBanner.style.display="none";clearInterval(rotation);};
+
+/* 🎬 Mid Roll Skip Ad */
+const midPopup=document.getElementById("midPopup");
+const skipBtn=document.getElementById("skipBtn");
+let midShown=false;
+
+video.addEventListener("timeupdate",()=>{
+if(!midShown && video.duration){
+const percent=(video.currentTime/video.duration)*100;
+if(percent>=50){
+midShown=true;
+midPopup.style.display="flex";
+video.pause();
+
+let timeLeft=5;
+skipBtn.textContent=`Skip Ad in ${timeLeft}...`;
+
+const countdown=setInterval(()=>{
+timeLeft--;
+skipBtn.textContent=`Skip Ad in ${timeLeft}...`;
+if(timeLeft<=0){
+clearInterval(countdown);
+skipBtn.textContent="Skip Ad";
+skipBtn.classList.remove("disabled");
+}
+},1000);
+}
+}
+});
+
+skipBtn.onclick=()=>{
+midPopup.style.display="none";
+video.play();
+};
+
+}catch{
+app.innerHTML="<div style='padding:40px;text-align:center'>Video Load Failed</div>";
+}
 }
 
 loadVideo();
