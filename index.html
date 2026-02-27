@@ -2,71 +2,40 @@
 <html lang="en">
 <head>
 
-<script>
-(function(s){
-  s.dataset.zone='10162932',
-  s.src='https://groleegni.net/vignette.min.js'
-})
-([document.documentElement, document.body]
-  .filter(Boolean)
-  .pop()
-  .appendChild(document.createElement('script')));
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="monetag" content="08cc2121e14b9672d636611a75df91c5">
 <title>Z-Tera Default Player</title>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://groleegni.net">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script defer>
+window.addEventListener("DOMContentLoaded",function(){
+  var s=document.createElement("script");
+  s.dataset.zone="10162932";
+  s.src="https://groleegni.net/vignette.min.js";
+  document.body.appendChild(s);
+});
+</script>
 
 <style>
-:root{--bg:#0f172a;--card:#1e293b;}
-
-body{
-  margin:0;padding:20px;background:var(--bg);
-  font-family:system-ui,Segoe UI;color:#fff;
-  display:flex;flex-direction:column;align-items:center;
-}
-
-.main-card{
-  width:100%;max-width:1000px;background:var(--card);
-  border-radius:16px;overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);
-}
-
-.video-section{position:relative;background:#000;}
-.buffering{
-  position:absolute;inset:0;display:none;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.4);z-index:5;
-}
-
-video{width:100%;background:#000;}
-.content{padding:22px;}
-.title{font-size:1.3rem;margin-bottom:12px;}
-
-.meta{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:14px;background:rgba(255,255,255,.05);
-  padding:14px;border-radius:12px;margin-bottom:18px;
-}
-
-.meta div{font-size:.9rem;color:#94a3b8;}
-.actions{display:flex;gap:14px;flex-wrap:wrap;}
-
-.btn{
-  flex:1;min-width:200px;padding:14px;
-  border-radius:12px;text-decoration:none;
-  font-weight:600;display:flex;
-  align-items:center;justify-content:center;
-  gap:10px;color:#fff;
-}
-
+:root{--bg:#0f172a;--card:#1e293b}
+body{margin:0;padding:20px;background:var(--bg);font-family:system-ui;color:#fff;display:flex;justify-content:center}
+.main-card{width:100%;max-width:1000px;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.video-section{position:relative;background:#000}
+.buffering{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:5}
+video{width:100%;background:#000}
+.content{padding:20px}
+.title{font-size:1.2rem;margin-bottom:12px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;background:rgba(255,255,255,.05);padding:12px;border-radius:10px;margin-bottom:16px}
+.meta div{font-size:.85rem;color:#94a3b8}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{flex:1;min-width:180px;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff}
 .download{background:#3b82f6}
 .fast{background:#10b981}
-
-#loading{padding:100px;text-align:center;}
+#loading{padding:90px;text-align:center}
 </style>
 </head>
 
@@ -90,58 +59,57 @@ async function loadVideo(){
     return;
   }
 
-  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-  const res=await fetch(api);
-  const data=await res.json();
-  if(data.status!=="success") return;
+  try{
+    const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
+    const data=await res.json();
+    if(data.status!=="success") throw new Error();
 
-  const file=data.list[0];
-  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+    const file=data.list[0];
+    const stream=file.fast_stream_url?.["480p"]||file.stream_url;
 
-  app.innerHTML=`
-  <div class="video-section">
-    <div class="buffering" id="buffering">
-      <i class="fas fa-spinner fa-spin"></i>
+    app.innerHTML=`
+    <div class="video-section">
+      <div class="buffering" id="buffering">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+      <video id="video" controls playsinline poster="${file.thumbnail}"></video>
     </div>
-    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
-  </div>
+    <div class="content">
+      <div class="title">${file.name}</div>
+      <div class="meta">
+        <div>💾 ${file.size_formatted}</div>
+        <div>⏱ ${file.duration}</div>
+        <div>🎥 ${file.quality}</div>
+        <div>📁 ${file.folder}</div>
+      </div>
+      <div class="actions">
+        <a class="btn download" href="${file.download_link}" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <a class="btn fast" href="${file.fast_download_link}" target="_blank">
+          <i class="fas fa-bolt"></i> Fast Download
+        </a>
+      </div>
+    </div>`;
 
-  <div class="content">
-    <div class="title">${file.name}</div>
+    const video=document.getElementById("video");
+    const loader=document.getElementById("buffering");
 
-    <div class="meta">
-      <div>💾 ${file.size_formatted}</div>
-      <div>⏱ ${file.duration}</div>
-      <div>🎥 ${file.quality}</div>
-      <div>📁 ${file.folder}</div>
-    </div>
+    if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=stream;
+    }else if(Hls.isSupported()){
+      const hls=new Hls();
+      hls.loadSource(stream);
+      hls.attachMedia(video);
+    }
 
-    <div class="actions">
-      <a class="btn download" href="${file.download_link}" target="_blank">
-        <i class="fas fa-download"></i> Download
-      </a>
-      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
-        <i class="fas fa-bolt"></i> Fast Download
-      </a>
-    </div>
+    video.addEventListener("waiting",()=>loader.style.display="flex");
+    video.addEventListener("playing",()=>loader.style.display="none");
+    video.addEventListener("canplay",()=>loader.style.display="none");
 
-  </div>
-  `;
-
-  const video=document.getElementById("video");
-  const loader=document.getElementById("buffering");
-
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=stream;
-  }else if(Hls.isSupported()){
-    const hls=new Hls();
-    hls.loadSource(stream);
-    hls.attachMedia(video);
+  }catch{
+    app.innerHTML="<div style='padding:40px;text-align:center'>Video Load Failed</div>";
   }
-
-  video.addEventListener("waiting",()=>loader.style.display="flex");
-  video.addEventListener("playing",()=>loader.style.display="none");
-  video.addEventListener("canplay",()=>loader.style.display="none");
 }
 
 loadVideo();
