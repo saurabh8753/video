@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redirecting...</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: #f0f2f5;
+}
+
+.btn-container {
+    text-align: center;
+}
+
+.download-btn {
+    background-color: #2481cc;
+    color: white;
+    padding: 18px 35px;
+    font-size: 20px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.ad-box {
+    margin-top: 20px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="btn-container">
+    <a href="#" id="actionBtn" class="download-btn">
+        Download Desisaver App
+    </a>
+</div>
+
+<script>
+const externalUrl = "https://desisavar.pages.dev/app";
+const smartLink = "https://yawncollaremotion.com/fpia88me42?key=aa17f736d8e730afcf3b343c3cc58b0c";
+
+function handleRedirect() {
+
+    if (/Android/i.test(navigator.userAgent)) {
+
+        const chromeIntent =
+        "intent://" +
+        externalUrl.replace(/^https?:\/\//, "") +
+        "#Intent;scheme=https;package=com.android.chrome;end";
+
+        window.location.href = chromeIntent;
+
+        // ✅ Smart link after 7 seconds
+        setTimeout(() => {
+            window.location.href = smartLink;
+        }, 7000);
+
+    } else {
+
+        window.open(externalUrl, "_blank");
+
+        // ✅ Smart link after 7 seconds
+        setTimeout(() => {
+            window.location.href = smartLink;
+        }, 7000);
+    }
+}
+
+document.getElementById("actionBtn").addEventListener("click", function (e) {
+    e.preventDefault();
+    handleRedirect();
+});
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("actionBtn").click();
+    }, 800);
+});
+</script>
+
+</body>
+</html>
