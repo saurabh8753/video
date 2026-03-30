@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Default Player</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<!-- 🔥 Onclicka Script -->
+<script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="434012"></script>
+
 <style>
 :root{
   --bg:#0f172a;
@@ -103,20 +107,26 @@ video{
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <script>
 async function loadVideo(){
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
+
   if(!videoUrl){
     app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
     return;
   }
+
   const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
   const res=await fetch(api);
   const data=await res.json();
+
   if(data.status!=="success") return;
+
   const file=data.list[0];
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+
   app.innerHTML=`
   <div class="video-section">
     <div class="buffering" id="buffering">
@@ -142,9 +152,11 @@ async function loadVideo(){
     </div>
   </div>
   `;
+
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
+  // HLS Setup
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -153,10 +165,37 @@ async function loadVideo(){
     hls.attachMedia(video);
   }
 
+  // Buffer loader
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
+  // 🔥 PRE-ROLL AD LOGIC
+  let adPlayed = false;
+
+  function triggerAdThenPlay(){
+    if(adPlayed) return;
+    adPlayed = true;
+
+    // Trigger Onclicka Ad
+    document.body.click();
+
+    // Delay before video starts (simulate ad)
+    setTimeout(()=>{
+      video.play();
+    }, 3000);
+  }
+
+  // Intercept first play
+  video.addEventListener("play",(e)=>{
+    if(!adPlayed){
+      e.preventDefault();
+      video.pause();
+      triggerAdThenPlay();
+    }
+  });
+
+  // Orientation lock
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
@@ -167,6 +206,7 @@ async function loadVideo(){
     }
   });
 }
+
 loadVideo();
 </script>
 
