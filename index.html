@@ -106,13 +106,18 @@ video{
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-// 🔥 SMARTLINK ROTATION (same as before)
+// 🔥 2 SMARTLINK ROTATION
 const SMARTLINKS = [
-  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8"
+  "https://yawncollaremotion.com/d6t7gz80vk?key=f42e62f3f0beafbf9284f45dc3121e6f",
+  "https://omg10.com/4/5361845"
 ];
 
+function getSmartLink(){
+  return SMARTLINKS[Math.floor(Math.random() * SMARTLINKS.length)];
+}
+
 function openAd(){
-  window.open(SMARTLINKS[Math.floor(Math.random()*SMARTLINKS.length)], "_blank");
+  window.open(getSmartLink(), "_blank");
 }
 
 async function loadVideo(){
@@ -128,16 +133,13 @@ async function loadVideo(){
   const res=await fetch(api);
   const data=await res.json();
 
-  if(data.status!=="success" || !data.list || !data.list.length) return;
+  if(data.status!=="success" || !data.list?.length) return;
 
   const file=data.list[0];
+  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
-  // 🔥 STREAM HANDLING (NEW STRUCTURE SAFE)
-  let stream = file.stream_url || file.fast_stream_url?.["480p"] || file.fast_stream_url?.["360p"];
-
-  // 🔥 DOWNLOAD LINKS (fallback)
-  const downloadLink = file.download_link || file.normal_dlink || file.zip_dlink;
-  const fastDownload = file.fast_download_link || file.normal_dlink || file.zip_dlink;
+  const downloadLink = file.normal_dlink || file.zip_dlink;
+  const fastDownload = file.normal_dlink || file.zip_dlink;
 
   app.innerHTML=`
   <div class="video-section">
@@ -181,11 +183,11 @@ async function loadVideo(){
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
 
-  // 🔽 DOWNLOAD → AD + DOWNLOAD
+  // 🔽 DOWNLOAD → ROTATION AD
   document.getElementById("downloadBtn").onclick=openAd;
   document.getElementById("fastBtn").onclick=openAd;
 
-  // 🔙 BACK BUTTON → AD
+  // 🔙 BACK BUTTON → ROTATION AD
   let backAdShown=false;
   history.pushState(null,null,location.href);
 
