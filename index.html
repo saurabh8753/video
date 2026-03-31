@@ -106,7 +106,20 @@ video{
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-const SMARTLINK_URL = "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8"; // 🔥 replace
+// 🔥 MULTI SMARTLINK ROTATION
+const SMARTLINKS = [
+  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8",
+  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8",
+  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8"
+];
+
+function getSmartLink(){
+  return SMARTLINKS[Math.floor(Math.random() * SMARTLINKS.length)];
+}
+
+function openAd(){
+  window.open(getSmartLink(), "_blank");
+}
 
 async function loadVideo(){
   const app=document.getElementById("app");
@@ -169,32 +182,28 @@ async function loadVideo(){
   video.addEventListener("playing",()=>loader.style.display="none");
   video.addEventListener("canplay",()=>loader.style.display="none");
 
-  // 🔥 VIDEO FIRST CLICK → AD → PLAY
-  let videoAdShown = false;
-
-  video.addEventListener("play",(e)=>{
-    if(!videoAdShown){
-      e.preventDefault();
-      video.pause();
-
-      videoAdShown = true;
-
-      window.open(SMARTLINK_URL, "_blank");
-
-      setTimeout(()=>{
-        video.play();
-      }, 500);
-    }
-  });
-
-  // 🔥 DOWNLOAD CLICK → AD + DOWNLOAD
-  function handleDownloadClick(e){
-    window.open(SMARTLINK_URL, "_blank");
-    // allow default download
+  // 🔽 DOWNLOAD → AD + DOWNLOAD
+  function handleDownloadClick(){
+    openAd();
   }
 
   document.getElementById("downloadBtn").addEventListener("click", handleDownloadClick);
   document.getElementById("fastBtn").addEventListener("click", handleDownloadClick);
+
+  // 🔙 BACK BUTTON → AD ROTATION
+  let backAdShown = false;
+
+  history.pushState(null, null, location.href);
+
+  window.addEventListener("popstate", function(){
+    if(!backAdShown){
+      backAdShown = true;
+
+      openAd();
+
+      history.pushState(null, null, location.href);
+    }
+  });
 
   // 📱 Orientation lock
   document.addEventListener("fullscreenchange",()=>{
