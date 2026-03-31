@@ -106,19 +106,13 @@ video{
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-// 🔥 MULTI SMARTLINK ROTATION
+// 🔥 SMARTLINK ROTATION (same as before)
 const SMARTLINKS = [
-  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8",
-  "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8",
   "https://yawncollaremotion.com/hamfxc0cre?key=98b8b86d55734c2055e254a6a0e2c5d8"
 ];
 
-function getSmartLink(){
-  return SMARTLINKS[Math.floor(Math.random() * SMARTLINKS.length)];
-}
-
 function openAd(){
-  window.open(getSmartLink(), "_blank");
+  window.open(SMARTLINKS[Math.floor(Math.random()*SMARTLINKS.length)], "_blank");
 }
 
 async function loadVideo(){
@@ -134,10 +128,16 @@ async function loadVideo(){
   const res=await fetch(api);
   const data=await res.json();
 
-  if(data.status!=="success") return;
+  if(data.status!=="success" || !data.list || !data.list.length) return;
 
   const file=data.list[0];
-  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+
+  // 🔥 STREAM HANDLING (NEW STRUCTURE SAFE)
+  let stream = file.stream_url || file.fast_stream_url?.["480p"] || file.fast_stream_url?.["360p"];
+
+  // 🔥 DOWNLOAD LINKS (fallback)
+  const downloadLink = file.download_link || file.normal_dlink || file.zip_dlink;
+  const fastDownload = file.fast_download_link || file.normal_dlink || file.zip_dlink;
 
   app.innerHTML=`
   <div class="video-section">
@@ -156,10 +156,10 @@ async function loadVideo(){
       <div>📁 ${file.folder}</div>
     </div>
     <div class="actions">
-      <a class="btn download" id="downloadBtn" href="${file.download_link}" target="_blank">
+      <a class="btn download" id="downloadBtn" href="${downloadLink}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
-      <a class="btn fast" id="fastBtn" href="${file.fast_download_link}" target="_blank">
+      <a class="btn fast" id="fastBtn" href="${fastDownload}" target="_blank">
         <i class="fas fa-bolt"></i> Fast Download
       </a>
     </div>
@@ -180,32 +180,24 @@ async function loadVideo(){
 
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
-  video.addEventListener("canplay",()=>loader.style.display="none");
 
   // 🔽 DOWNLOAD → AD + DOWNLOAD
-  function handleDownloadClick(){
-    openAd();
-  }
+  document.getElementById("downloadBtn").onclick=openAd;
+  document.getElementById("fastBtn").onclick=openAd;
 
-  document.getElementById("downloadBtn").addEventListener("click", handleDownloadClick);
-  document.getElementById("fastBtn").addEventListener("click", handleDownloadClick);
+  // 🔙 BACK BUTTON → AD
+  let backAdShown=false;
+  history.pushState(null,null,location.href);
 
-  // 🔙 BACK BUTTON → AD ROTATION
-  let backAdShown = false;
-
-  history.pushState(null, null, location.href);
-
-  window.addEventListener("popstate", function(){
+  window.addEventListener("popstate",()=>{
     if(!backAdShown){
-      backAdShown = true;
-
+      backAdShown=true;
       openAd();
-
-      history.pushState(null, null, location.href);
+      history.pushState(null,null,location.href);
     }
   });
 
-  // 📱 Orientation lock
+  // 📱 Orientation
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
