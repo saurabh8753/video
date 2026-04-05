@@ -3,35 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Default Player</title>
+<title>Z-Tera Player</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-<!-- ✅ IMA SDK -->
 <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-}
 body{
   margin:0;
   padding:20px;
-  background:var(--bg);
-  font-family:system-ui,Segoe UI;
+  background:#0f172a;
+  font-family:system-ui;
   color:#fff;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
 }
 .main-card{
   width:100%;
-  max-width:1000px;
-  background:var(--card);
+  max-width:900px;
+  background:#1e293b;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 .video-section{
   position:relative;
@@ -39,82 +31,44 @@ body{
 }
 #adContainer{
   position:absolute;
-  top:0;
-  left:0;
   width:100%;
   height:100%;
   z-index:10;
-  display:block;
 }
-.buffering{
+#playBtn{
   position:absolute;
   inset:0;
-  display:none;
+  display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.4);
-  z-index:5;
+  background:rgba(0,0,0,.5);
+  z-index:20;
+  cursor:pointer;
 }
-.buffering i{
-  font-size:46px;
+#playBtn i{
+  font-size:60px;
 }
 video{
   width:100%;
-  background:#000;
 }
-.content{
-  padding:22px;
-}
-.title{
-  font-size:1.3rem;
-  margin-bottom:12px;
-}
-.meta{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:14px;
-  background:rgba(255,255,255,.05);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
-}
-.meta div{
-  font-size:.9rem;
-  color:#94a3b8;
-}
-.actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
+.content{padding:20px;}
 .btn{
-  flex:1;
-  min-width:200px;
-  padding:14px;
-  border-radius:12px;
-  text-decoration:none;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
+  display:inline-block;
+  padding:12px;
+  margin:5px;
+  background:#3b82f6;
   color:#fff;
+  border-radius:10px;
+  text-decoration:none;
 }
-.download{background:#3b82f6}
-.fast{background:#10b981}
-#loading{
-  padding:100px;
-  text-align:center;
-}
+.fast{background:#10b981;}
 </style>
 </head>
 
 <body>
 
 <div class="main-card" id="app">
-  <div id="loading">
-    <i class="fas fa-spinner fa-spin"></i> Loading Video...
-  </div>
+  <div style="padding:50px;text-align:center">Loading...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -122,159 +76,126 @@ video{
 <script>
 async function loadVideo(){
 
-  const app=document.getElementById("app");
-  const videoUrl=new URLSearchParams(location.search).get("url");
+const app=document.getElementById("app");
+const videoUrl=new URLSearchParams(location.search).get("url");
 
-  if(!videoUrl){
-    app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
-    return;
-  }
+if(!videoUrl){
+  app.innerHTML="No URL";
+  return;
+}
 
-  const api=`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-  const res=await fetch(api);
-  const data=await res.json();
+const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
+const data=await res.json();
 
-  if(data.status!=="success") return;
+if(data.status!=="success") return;
 
-  const file=data.list[0];
-  const stream=file.fast_stream_url?.["480p"] || file.stream_url;
+const file=data.list[0];
+const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
-  app.innerHTML=`
-  <div class="video-section">
+app.innerHTML=`
+<div class="video-section">
+  <div id="adContainer"></div>
 
-    <div id="adContainer"></div>
-
-    <div class="buffering" id="buffering">
-      <i class="fas fa-spinner fa-spin"></i>
-    </div>
-
-    <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+  <div id="playBtn">
+    <i class="fas fa-play"></i>
   </div>
 
-  <div class="content">
-    <div class="title">${file.name}</div>
+  <video id="video" playsinline poster="${file.thumbnail}"></video>
+</div>
 
-    <div class="meta">
-      <div>💾 ${file.size_formatted}</div>
-      <div>⏱ ${file.duration}</div>
-      <div>🎥 ${file.quality}</div>
-      <div>📁 ${file.folder}</div>
-    </div>
+<div class="content">
+  <h3>${file.name}</h3>
 
-    <div class="actions">
-      <a class="btn download" href="${file.normal_dlink}" target="_blank">
-        <i class="fas fa-download"></i> Download
-      </a>
-      <a class="btn fast" href="${file.zip_dlink}" target="_blank">
-        <i class="fas fa-bolt"></i> Fast Download
-      </a>
-    </div>
-  </div>
-  `;
+  <a class="btn" href="${file.normal_dlink}" target="_blank">Download</a>
+  <a class="btn fast" href="${file.zip_dlink}" target="_blank">Fast Download</a>
+</div>
+`;
 
-  const video=document.getElementById("video");
-  const loader=document.getElementById("buffering");
-  const adContainer=document.getElementById("adContainer");
+const video=document.getElementById("video");
+const playBtn=document.getElementById("playBtn");
+const adContainer=document.getElementById("adContainer");
 
-  // ✅ HLS
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=stream;
-  }else if(Hls.isSupported()){
-    const hls=new Hls();
-    hls.loadSource(stream);
-    hls.attachMedia(video);
-  }
+/* ===== HLS ===== */
+if(video.canPlayType("application/vnd.apple.mpegurl")){
+  video.src=stream;
+}else if(Hls.isSupported()){
+  const hls=new Hls();
+  hls.loadSource(stream);
+  hls.attachMedia(video);
+}
 
-  video.addEventListener("waiting",()=>loader.style.display="flex");
-  video.addEventListener("playing",()=>loader.style.display="none");
-  video.addEventListener("canplay",()=>loader.style.display="none");
+/* ===== ADS ===== */
 
-  // =========================
-  // 🎬 FIXED VAST ADS
-  // =========================
+const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
-  const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
+let adsLoader, adsManager, adDisplayContainer;
 
-  let adsLoader, adsManager, adDisplayContainer;
+function startAds(){
 
-  function setupAds(){
-    adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
-    adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+  adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
+  adDisplayContainer.initialize();
 
-    adsLoader.addEventListener(
-      google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-      onAdsManagerLoaded
-    );
+  adsLoader=new google.ima.AdsLoader(adDisplayContainer);
 
-    adsLoader.addEventListener(
-      google.ima.AdErrorEvent.Type.AD_ERROR,
-      onAdError
-    );
-  }
+  adsLoader.addEventListener(
+    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+    (event)=>{
 
-  function requestAds(){
-    const adsRequest = new google.ima.AdsRequest();
-    adsRequest.adTagUrl = adTagUrl;
-    adsRequest.linearAdSlotWidth = video.offsetWidth;
-    adsRequest.linearAdSlotHeight = video.offsetHeight;
+      adsManager=event.getAdsManager(video);
 
-    adsLoader.requestAds(adsRequest);
-  }
+      adsManager.addEventListener(
+        google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+        ()=>{
+          adContainer.style.display="none";
+          video.controls=true;
+          video.play();
+        }
+      );
 
-  function onAdsManagerLoaded(event){
-    adsManager = event.getAdsManager(video);
+      adsManager.addEventListener(
+        google.ima.AdErrorEvent.Type.AD_ERROR,
+        ()=>{
+          startVideo();
+        }
+      );
 
-    adsManager.addEventListener(
-      google.ima.AdErrorEvent.Type.AD_ERROR,
-      onAdError
-    );
-
-    adsManager.addEventListener(
-      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-      () => {
-        adContainer.style.display="none";
-        video.play();
+      try{
+        adsManager.init(video.offsetWidth,video.offsetHeight,google.ima.ViewMode.NORMAL);
+        adsManager.start();
+      }catch(e){
+        startVideo();
       }
-    );
-
-    try{
-      adsManager.init(video.offsetWidth, video.offsetHeight, google.ima.ViewMode.NORMAL);
-      adsManager.start();
-    }catch(e){
-      video.play();
     }
-  }
+  );
 
-  function onAdError(){
-    console.log("Ad failed → playing video");
-    adContainer.style.display="none";
-    video.play();
-  }
-
-  // ✅ Trigger ads on play (mobile safe)
-  video.addEventListener("play", function(){
-    if(video.adsStarted) return;
-
-    video.adsStarted = true;
-
-    setupAds();
-    adDisplayContainer.initialize(); // MUST
-    requestAds();
-
-    video.pause(); // pause for ad
-  });
-
-  // =========================
-
-  document.addEventListener("fullscreenchange",()=>{
-    if(!document.fullscreenElement){
-      screen.orientation?.unlock?.();
-      return;
+  adsLoader.addEventListener(
+    google.ima.AdErrorEvent.Type.AD_ERROR,
+    ()=>{
+      startVideo();
     }
-    if(video.videoWidth > video.videoHeight){
-      screen.orientation?.lock("landscape").catch(()=>{});
-    }
-  });
+  );
+
+  const adsRequest=new google.ima.AdsRequest();
+  adsRequest.adTagUrl=adTagUrl;
+  adsRequest.linearAdSlotWidth=video.offsetWidth;
+  adsRequest.linearAdSlotHeight=video.offsetHeight;
+
+  adsLoader.requestAds(adsRequest);
+}
+
+function startVideo(){
+  adContainer.style.display="none";
+  video.controls=true;
+  video.play();
+}
+
+/* ===== CLICK ===== */
+
+playBtn.addEventListener("click",()=>{
+  playBtn.style.display="none";
+  startAds();
+});
+
 }
 
 loadVideo();
