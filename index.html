@@ -3,105 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Default Player</title>
+<title>Z-Tera Player</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-<!-- IMA SDK -->
 <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-}
 body{
   margin:0;
   padding:20px;
-  background:var(--bg);
-  font-family:system-ui,Segoe UI;
+  background:#0f172a;
+  font-family:system-ui;
   color:#fff;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
 }
 .main-card{
   width:100%;
-  max-width:1000px;
-  background:var(--card);
+  max-width:900px;
+  background:#1e293b;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
 .video-section{
   position:relative;
   background:#000;
 }
-#adLayer{
-  position:absolute;
-  inset:0;
-  z-index:10;
-  cursor:pointer;
-}
 #adContainer{
   position:absolute;
-  inset:0;
-  z-index:20;
+  width:100%;
+  height:100%;
+  z-index:10;
 }
-.buffering{
+#playBtn{
   position:absolute;
   inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.4);
-  z-index:5;
-}
-.buffering i{font-size:46px;}
-video{width:100%;background:#000;}
-.content{padding:22px;}
-.title{font-size:1.3rem;margin-bottom:12px;}
-.meta{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:14px;
-  background:rgba(255,255,255,.05);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
-}
-.meta div{font-size:.9rem;color:#94a3b8;}
-.actions{display:flex;gap:14px;flex-wrap:wrap;}
-.btn{
-  flex:1;
-  min-width:200px;
-  padding:14px;
-  border-radius:12px;
-  text-decoration:none;
-  font-weight:600;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
-  color:#fff;
+  background:rgba(0,0,0,.5);
+  z-index:20;
+  cursor:pointer;
 }
-.download{background:#3b82f6}
-.fast{background:#10b981}
+#playBtn i{
+  font-size:60px;
+}
+video{width:100%;}
+.content{padding:20px;}
+.btn{
+  display:inline-block;
+  padding:12px;
+  margin:5px;
+  background:#3b82f6;
+  color:#fff;
+  border-radius:10px;
+  text-decoration:none;
+}
+.fast{background:#10b981;}
+
+/* Banner */
 #bannerAd{
   width:100%;
   text-align:center;
-  margin:10px 0;
+  margin-top:10px;
 }
-#loading{padding:100px;text-align:center;}
 </style>
 </head>
 
 <body>
 
 <div class="main-card" id="app">
-  <div id="loading">
-    <i class="fas fa-spinner fa-spin"></i> Loading Video...
-  </div>
+  <div style="padding:50px;text-align:center">Loading...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -113,12 +85,13 @@ const app=document.getElementById("app");
 const videoUrl=new URLSearchParams(location.search).get("url");
 
 if(!videoUrl){
-  app.innerHTML="<div style='padding:40px;text-align:center'>No URL Found</div>";
+  app.innerHTML="No URL";
   return;
 }
 
 const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
 const data=await res.json();
+
 if(data.status!=="success") return;
 
 const file=data.list[0];
@@ -126,45 +99,30 @@ const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
 app.innerHTML=`
 <div class="video-section">
-
-  <div id="adLayer"></div>
   <div id="adContainer"></div>
 
-  <div class="buffering" id="buffering">
-    <i class="fas fa-spinner fa-spin"></i>
+  <div id="playBtn">
+    <i class="fas fa-play"></i>
   </div>
 
-  <video id="video" controls playsinline poster="${file.thumbnail}"></video>
+  <video id="video" playsinline poster="${file.thumbnail}"></video>
 </div>
 
 <div id="bannerAd"></div>
 
 <div class="content">
-  <div class="title">${file.name}</div>
+  <h3>${file.name}</h3>
 
-  <div class="meta">
-    <div>💾 ${file.size_formatted}</div>
-    <div>⏱ ${file.duration}</div>
-    <div>🎥 ${file.quality}</div>
-    <div>📁 ${file.folder}</div>
-  </div>
-
-  <div class="actions">
-    <a class="btn download" href="${file.normal_dlink}" target="_blank">
-      <i class="fas fa-download"></i> Download
-    </a>
-    <a class="btn fast" href="${file.zip_dlink}" target="_blank">
-      <i class="fas fa-bolt"></i> Fast Download
-    </a>
-  </div>
+  <a class="btn" href="${file.normal_dlink}" target="_blank">Download</a>
+  <a class="btn fast" href="${file.zip_dlink}" target="_blank">Fast Download</a>
 </div>
 `;
 
 const video=document.getElementById("video");
-const adLayer=document.getElementById("adLayer");
+const playBtn=document.getElementById("playBtn");
 const adContainer=document.getElementById("adContainer");
 
-/* HLS */
+/* ===== HLS ===== */
 if(video.canPlayType("application/vnd.apple.mpegurl")){
   video.src=stream;
 }else if(Hls.isSupported()){
@@ -173,27 +131,39 @@ if(video.canPlayType("application/vnd.apple.mpegurl")){
   hls.attachMedia(video);
 }
 
-/* ===== VAST ===== */
+/* ===== ADS ===== */
+
 const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
+
+let adsLoader, adsManager, adDisplayContainer;
 
 function startAds(){
 
-  const adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
+  adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
   adDisplayContainer.initialize();
 
-  const adsLoader=new google.ima.AdsLoader(adDisplayContainer);
+  adsLoader=new google.ima.AdsLoader(adDisplayContainer);
 
   adsLoader.addEventListener(
     google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
     (event)=>{
-      const adsManager=event.getAdsManager(video);
+
+      adsManager=event.getAdsManager(video);
 
       adsManager.addEventListener(
         google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
         ()=>{
           adContainer.style.display="none";
+          video.controls=true;
           video.play();
-          loadExtraAds();
+          loadExtraAds(); // ✅ after ad
+        }
+      );
+
+      adsManager.addEventListener(
+        google.ima.AdErrorEvent.Type.AD_ERROR,
+        ()=>{
+          startVideo();
         }
       );
 
@@ -220,11 +190,12 @@ function startAds(){
 
 function startVideo(){
   adContainer.style.display="none";
+  video.controls=true;
   video.play();
-  loadExtraAds();
+  loadExtraAds(); // ✅ fallback
 }
 
-/* ===== DELAY ADS ===== */
+/* ===== SAFE EXTRA ADS LOAD ===== */
 function loadExtraAds(){
 
   // Banner
@@ -235,19 +206,19 @@ function loadExtraAds(){
     document.getElementById("bannerAd").appendChild(s);
   },2000);
 
-  // Slider
+  // Slider (safe: body me inject)
   setTimeout(()=>{
     var s=document.createElement('script');
     s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
     s.async=true;
     document.body.appendChild(s);
   },3000);
+
 }
 
-/* CLICK */
-adLayer.addEventListener("click",()=>{
-  adLayer.style.display="none";
-  video.pause();
+/* ===== CLICK ===== */
+playBtn.addEventListener("click",()=>{
+  playBtn.style.display="none";
   startAds();
 });
 
