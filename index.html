@@ -7,7 +7,7 @@
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-<!-- ✅ IMA SDK -->
+<!-- IMA SDK -->
 <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
 <style>
@@ -38,7 +38,7 @@ body{
   background:#000;
 }
 
-/* ✅ Invisible ad layer (UI change nahi karega) */
+/* Invisible ad trigger */
 #adLayer{
   position:absolute;
   inset:0;
@@ -46,11 +46,19 @@ body{
   cursor:pointer;
 }
 
-/* ✅ Ad container */
+/* VAST container */
 #adContainer{
   position:absolute;
   inset:0;
   z-index:20;
+}
+
+/* Slider ad */
+#sliderAd{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  z-index:15;
 }
 
 .buffering{
@@ -63,9 +71,19 @@ body{
   z-index:5;
 }
 .buffering i{font-size:46px;}
-video{width:100%;background:#000;}
-.content{padding:22px;}
-.title{font-size:1.3rem;margin-bottom:12px;}
+
+video{
+  width:100%;
+  background:#000;
+}
+
+.content{
+  padding:22px;
+}
+.title{
+  font-size:1.3rem;
+  margin-bottom:12px;
+}
 .meta{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -75,8 +93,15 @@ video{width:100%;background:#000;}
   border-radius:12px;
   margin-bottom:18px;
 }
-.meta div{font-size:.9rem;color:#94a3b8;}
-.actions{display:flex;gap:14px;flex-wrap:wrap;}
+.meta div{
+  font-size:.9rem;
+  color:#94a3b8;
+}
+.actions{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
 .btn{
   flex:1;
   min-width:200px;
@@ -92,7 +117,18 @@ video{width:100%;background:#000;}
 }
 .download{background:#3b82f6}
 .fast{background:#10b981}
-#loading{padding:100px;text-align:center;}
+
+/* Banner */
+#bannerAd{
+  width:100%;
+  text-align:center;
+  margin:10px 0;
+}
+
+#loading{
+  padding:100px;
+  text-align:center;
+}
 </style>
 </head>
 
@@ -127,6 +163,8 @@ const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 app.innerHTML=`
 <div class="video-section">
 
+  <div id="sliderAd"></div>
+
   <div id="adLayer"></div>
   <div id="adContainer"></div>
 
@@ -136,6 +174,9 @@ app.innerHTML=`
 
   <video id="video" controls playsinline poster="${file.thumbnail}"></video>
 </div>
+
+<!-- Banner -->
+<div id="bannerAd"></div>
 
 <div class="content">
   <div class="title">${file.name}</div>
@@ -148,7 +189,6 @@ app.innerHTML=`
   </div>
 
   <div class="actions">
-    <!-- ✅ FIXED LINKS -->
     <a class="btn download" href="${file.normal_dlink}" target="_blank">
       <i class="fas fa-download"></i> Download
     </a>
@@ -177,7 +217,7 @@ if(video.canPlayType("application/vnd.apple.mpegurl")){
 video.addEventListener("waiting",()=>loader.style.display="flex");
 video.addEventListener("playing",()=>loader.style.display="none");
 
-/* ===== ADS ===== */
+/* ===== VAST ADS ===== */
 
 const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
@@ -191,7 +231,6 @@ function startAds(){
   adsLoader.addEventListener(
     google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
     (event)=>{
-
       const adsManager=event.getAdsManager(video);
 
       adsManager.addEventListener(
@@ -233,12 +272,28 @@ function startAds(){
   adsLoader.requestAds(adsRequest);
 }
 
-/* ✅ CLICK trigger (UI same dikhega) */
+/* Click trigger */
 adLayer.addEventListener("click",()=>{
   adLayer.style.display="none";
   video.pause();
   startAds();
 });
+
+/* ===== Banner Ad ===== */
+(function(){
+  var d=document,s=d.createElement('script');
+  s.src="//selfassured-celebration.com/bsXaVCsLd.G/lu0rY/WxcK/Ve/mB9XuVZcUzlsk/PoToYA5tMSjDkgxoM-j/EKt/N/j/k/yjOxTfESySN/QY";
+  s.async=true;
+  document.getElementById("bannerAd").appendChild(s);
+})();
+
+/* ===== Slider Ad ===== */
+(function(){
+  var d=document,s=d.createElement('script');
+  s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
+  s.async=true;
+  document.getElementById("sliderAd").appendChild(s);
+})();
 
 }
 
