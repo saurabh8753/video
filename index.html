@@ -38,7 +38,7 @@ body{
   background:#000;
 }
 
-/* Invisible ad trigger */
+/* Click layer */
 #adLayer{
   position:absolute;
   inset:0;
@@ -46,19 +46,20 @@ body{
   cursor:pointer;
 }
 
-/* VAST container */
+/* VAST */
 #adContainer{
   position:absolute;
   inset:0;
   z-index:20;
 }
 
-/* Slider ad */
+/* FIXED slider */
 #sliderAd{
   position:absolute;
   bottom:0;
   width:100%;
-  z-index:15;
+  z-index:5;
+  pointer-events:none;
 }
 
 .buffering{
@@ -72,18 +73,10 @@ body{
 }
 .buffering i{font-size:46px;}
 
-video{
-  width:100%;
-  background:#000;
-}
+video{width:100%;background:#000;}
 
-.content{
-  padding:22px;
-}
-.title{
-  font-size:1.3rem;
-  margin-bottom:12px;
-}
+.content{padding:22px;}
+.title{font-size:1.3rem;margin-bottom:12px;}
 .meta{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -93,15 +86,9 @@ video{
   border-radius:12px;
   margin-bottom:18px;
 }
-.meta div{
-  font-size:.9rem;
-  color:#94a3b8;
-}
-.actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
+.meta div{font-size:.9rem;color:#94a3b8;}
+
+.actions{display:flex;gap:14px;flex-wrap:wrap;}
 .btn{
   flex:1;
   min-width:200px;
@@ -118,17 +105,13 @@ video{
 .download{background:#3b82f6}
 .fast{background:#10b981}
 
-/* Banner */
 #bannerAd{
   width:100%;
   text-align:center;
   margin:10px 0;
 }
 
-#loading{
-  padding:100px;
-  text-align:center;
-}
+#loading{padding:100px;text-align:center;}
 </style>
 </head>
 
@@ -175,7 +158,6 @@ app.innerHTML=`
   <video id="video" controls playsinline poster="${file.thumbnail}"></video>
 </div>
 
-<!-- Banner -->
 <div id="bannerAd"></div>
 
 <div class="content">
@@ -217,12 +199,10 @@ if(video.canPlayType("application/vnd.apple.mpegurl")){
 video.addEventListener("waiting",()=>loader.style.display="flex");
 video.addEventListener("playing",()=>loader.style.display="none");
 
-/* ===== VAST ADS ===== */
-
+/* ===== VAST ===== */
 const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
 function startAds(){
-
   const adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
   adDisplayContainer.initialize();
 
@@ -272,27 +252,28 @@ function startAds(){
   adsLoader.requestAds(adsRequest);
 }
 
-/* Click trigger */
+/* CLICK */
 adLayer.addEventListener("click",()=>{
   adLayer.style.display="none";
   video.pause();
   startAds();
+
+  // ✅ slider delayed load (FIX)
+  setTimeout(()=>{
+    var s=document.createElement('script');
+    s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
+    s.async=true;
+    document.getElementById("sliderAd").appendChild(s);
+  },2000);
+
 });
 
-/* ===== Banner Ad ===== */
+/* Banner */
 (function(){
-  var d=document,s=d.createElement('script');
+  var s=document.createElement('script');
   s.src="//selfassured-celebration.com/bsXaVCsLd.G/lu0rY/WxcK/Ve/mB9XuVZcUzlsk/PoToYA5tMSjDkgxoM-j/EKt/N/j/k/yjOxTfESySN/QY";
   s.async=true;
   document.getElementById("bannerAd").appendChild(s);
-})();
-
-/* ===== Slider Ad ===== */
-(function(){
-  var d=document,s=d.createElement('script');
-  s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
-  s.async=true;
-  document.getElementById("sliderAd").appendChild(s);
 })();
 
 }
