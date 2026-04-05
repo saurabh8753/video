@@ -3,16 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Player</title>
+<title>Z-Tera Default Player</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
 <style>
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+}
 body{
   margin:0;
   padding:20px;
-  background:#0f172a;
+  background:var(--bg);
   font-family:system-ui;
   color:#fff;
   display:flex;
@@ -20,8 +24,8 @@ body{
 }
 .main-card{
   width:100%;
-  max-width:900px;
-  background:#1e293b;
+  max-width:1000px;
+  background:var(--card);
   border-radius:16px;
   overflow:hidden;
 }
@@ -29,46 +33,70 @@ body{
   position:relative;
   background:#000;
 }
+
+/* Ads */
 #adContainer{
   position:absolute;
   width:100%;
   height:100%;
   z-index:10;
 }
-#playBtn{
+
+/* Invisible click overlay (UI same rahega) */
+#playLayer{
   position:absolute;
   inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.5);
   z-index:20;
   cursor:pointer;
 }
-#playBtn i{
-  font-size:60px;
+
+.buffering{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.4);
+  z-index:5;
 }
-video{
-  width:100%;
+video{width:100%}
+
+.content{padding:22px;}
+.title{font-size:1.3rem;margin-bottom:12px;}
+.meta{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:14px;
+  background:rgba(255,255,255,.05);
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:18px;
 }
-.content{padding:20px;}
+.meta div{font-size:.9rem;color:#94a3b8;}
+
+.actions{display:flex;gap:14px;flex-wrap:wrap;}
 .btn{
-  display:inline-block;
-  padding:12px;
-  margin:5px;
-  background:#3b82f6;
-  color:#fff;
-  border-radius:10px;
+  flex:1;
+  min-width:200px;
+  padding:14px;
+  border-radius:12px;
   text-decoration:none;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  color:#fff;
 }
-.fast{background:#10b981;}
+.download{background:#3b82f6}
+.fast{background:#10b981}
 </style>
 </head>
 
 <body>
 
 <div class="main-card" id="app">
-  <div style="padding:50px;text-align:center">Loading...</div>
+  <div style="padding:100px;text-align:center">Loading...</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -86,7 +114,6 @@ if(!videoUrl){
 
 const res=await fetch(`https://ztera.yaartunah.workers.dev/?url=${encodeURIComponent(videoUrl)}`);
 const data=await res.json();
-
 if(data.status!=="success") return;
 
 const file=data.list[0];
@@ -94,28 +121,44 @@ const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
 app.innerHTML=`
 <div class="video-section">
-  <div id="adContainer"></div>
 
-  <div id="playBtn">
-    <i class="fas fa-play"></i>
+  <div id="adContainer"></div>
+  <div id="playLayer"></div>
+
+  <div class="buffering" id="buffering">
+    <i class="fas fa-spinner fa-spin"></i>
   </div>
 
-  <video id="video" playsinline poster="${file.thumbnail}"></video>
+  <video id="video" controls playsinline poster="${file.thumbnail}"></video>
 </div>
 
 <div class="content">
-  <h3>${file.name}</h3>
+  <div class="title">${file.name}</div>
 
-  <a class="btn" href="${file.normal_dlink}" target="_blank">Download</a>
-  <a class="btn fast" href="${file.zip_dlink}" target="_blank">Fast Download</a>
+  <div class="meta">
+    <div>💾 ${file.size_formatted}</div>
+    <div>⏱ ${file.duration}</div>
+    <div>🎥 ${file.quality}</div>
+    <div>📁 ${file.folder}</div>
+  </div>
+
+  <div class="actions">
+    <a class="btn download" href="${file.normal_dlink}" target="_blank">
+      <i class="fas fa-download"></i> Download
+    </a>
+    <a class="btn fast" href="${file.zip_dlink}" target="_blank">
+      <i class="fas fa-bolt"></i> Fast Download
+    </a>
+  </div>
 </div>
 `;
 
 const video=document.getElementById("video");
-const playBtn=document.getElementById("playBtn");
+const playLayer=document.getElementById("playLayer");
 const adContainer=document.getElementById("adContainer");
+const loader=document.getElementById("buffering");
 
-/* ===== HLS ===== */
+/* HLS */
 if(video.canPlayType("application/vnd.apple.mpegurl")){
   video.src=stream;
 }else if(Hls.isSupported()){
@@ -124,30 +167,31 @@ if(video.canPlayType("application/vnd.apple.mpegurl")){
   hls.attachMedia(video);
 }
 
-/* ===== ADS ===== */
+/* loader */
+video.addEventListener("waiting",()=>loader.style.display="flex");
+video.addEventListener("playing",()=>loader.style.display="none");
+
+/* ADS */
 
 const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
-let adsLoader, adsManager, adDisplayContainer;
-
 function startAds(){
 
-  adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
+  const adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
   adDisplayContainer.initialize();
 
-  adsLoader=new google.ima.AdsLoader(adDisplayContainer);
+  const adsLoader=new google.ima.AdsLoader(adDisplayContainer);
 
   adsLoader.addEventListener(
     google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
     (event)=>{
 
-      adsManager=event.getAdsManager(video);
+      const adsManager=event.getAdsManager(video);
 
       adsManager.addEventListener(
         google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
         ()=>{
           adContainer.style.display="none";
-          video.controls=true;
           video.play();
         }
       );
@@ -155,7 +199,7 @@ function startAds(){
       adsManager.addEventListener(
         google.ima.AdErrorEvent.Type.AD_ERROR,
         ()=>{
-          startVideo();
+          video.play();
         }
       );
 
@@ -163,7 +207,7 @@ function startAds(){
         adsManager.init(video.offsetWidth,video.offsetHeight,google.ima.ViewMode.NORMAL);
         adsManager.start();
       }catch(e){
-        startVideo();
+        video.play();
       }
     }
   );
@@ -171,7 +215,7 @@ function startAds(){
   adsLoader.addEventListener(
     google.ima.AdErrorEvent.Type.AD_ERROR,
     ()=>{
-      startVideo();
+      video.play();
     }
   );
 
@@ -183,16 +227,10 @@ function startAds(){
   adsLoader.requestAds(adsRequest);
 }
 
-function startVideo(){
-  adContainer.style.display="none";
-  video.controls=true;
-  video.play();
-}
-
-/* ===== CLICK ===== */
-
-playBtn.addEventListener("click",()=>{
-  playBtn.style.display="none";
+/* CLICK trigger */
+playLayer.addEventListener("click",()=>{
+  playLayer.style.display="none";
+  video.pause();
   startAds();
 });
 
