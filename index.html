@@ -94,6 +94,14 @@ video{
   padding:100px;
   text-align:center;
 }
+
+/* ✅ DELAY AD */
+#delayedAd{
+display:none;
+margin-top:20px;
+text-align:center;
+width:100%;
+}
 </style>
 </head>
 
@@ -103,6 +111,14 @@ video{
   <div id="loading">
     <i class="fas fa-spinner fa-spin"></i> Loading Video...
   </div>
+</div>
+
+<!-- ✅ 5 SEC DELAY AD -->
+<div id="delayedAd">
+  <script async data-cfasync="false"
+    src="https://pl28453807.effectivegatecpm.com/e1b6987953b44b06af771c434831e631/invoke.js">
+  </script>
+  <div id="container-e1b6987953b44b06af771c434831e631"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -131,7 +147,6 @@ async function loadVideo(){
 
     const file=data.list[0];
 
-    // ✅ Stream selection (priority based)
     const stream = file.fast_stream_url?.["480p"] 
                 || file.fast_stream_url?.["360p"] 
                 || file.stream_url 
@@ -170,7 +185,6 @@ async function loadVideo(){
     const video=document.getElementById("video");
     const loader=document.getElementById("buffering");
 
-    // ✅ HLS Playback
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src=stream;
     }else if(Hls.isSupported()){
@@ -179,12 +193,10 @@ async function loadVideo(){
       hls.attachMedia(video);
     }
 
-    // ✅ Loader handling
     video.addEventListener("waiting",()=>loader.style.display="flex");
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
 
-    // ✅ Auto rotate fullscreen
     document.addEventListener("fullscreenchange",()=>{
       if(!document.fullscreenElement){
         screen.orientation?.unlock?.();
@@ -201,6 +213,14 @@ async function loadVideo(){
 }
 
 loadVideo();
+
+/* ⏱️ 5 SECOND DELAY */
+setTimeout(()=>{
+  const ad=document.getElementById("delayedAd");
+  if(ad){
+    ad.style.display="block";
+  }
+},5000);
 </script>
 
 </body>
