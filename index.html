@@ -37,8 +37,6 @@ body{
   position:relative;
   background:#000;
 }
-
-/* ✅ Ads container */
 #adContainer{
   position:absolute;
   top:0;
@@ -47,7 +45,6 @@ body{
   height:100%;
   z-index:10;
 }
-
 .buffering{
   position:absolute;
   inset:0;
@@ -139,12 +136,13 @@ async function loadVideo(){
   if(data.status!=="success") return;
 
   const file=data.list[0];
+
+  // ✅ Correct stream logic
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
   app.innerHTML=`
   <div class="video-section">
 
-    <!-- ✅ VAST Ads Container -->
     <div id="adContainer"></div>
 
     <div class="buffering" id="buffering">
@@ -165,10 +163,11 @@ async function loadVideo(){
     </div>
 
     <div class="actions">
-      <a class="btn download" href="${file.download_link}" target="_blank">
+      <!-- ✅ FIXED LINKS -->
+      <a class="btn download" href="${file.normal_dlink}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
-      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
+      <a class="btn fast" href="${file.zip_dlink}" target="_blank">
         <i class="fas fa-bolt"></i> Fast Download
       </a>
     </div>
@@ -178,7 +177,7 @@ async function loadVideo(){
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  // ✅ HLS Setup
+  // ✅ HLS
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -192,7 +191,7 @@ async function loadVideo(){
   video.addEventListener("canplay",()=>loader.style.display="none");
 
   // =========================
-  // 🎬 VAST ADS (IMA SDK)
+  // 🎬 VAST ADS
   // =========================
 
   const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
@@ -234,7 +233,7 @@ async function loadVideo(){
     }
   );
 
-  // 👉 Play pe ad trigger
+  // ✅ Trigger ad on play
   video.addEventListener("play",function(){
     if(!video.adsStarted){
       video.adsStarted=true;
