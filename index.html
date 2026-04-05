@@ -44,6 +44,7 @@ body{
   width:100%;
   height:100%;
   z-index:10;
+  display:block;
 }
 .buffering{
   position:absolute;
@@ -136,8 +137,6 @@ async function loadVideo(){
   if(data.status!=="success") return;
 
   const file=data.list[0];
-
-  // ✅ Correct stream logic
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
   app.innerHTML=`
@@ -163,7 +162,6 @@ async function loadVideo(){
     </div>
 
     <div class="actions">
-      <!-- ✅ FIXED LINKS -->
       <a class="btn download" href="${file.normal_dlink}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
@@ -176,6 +174,7 @@ async function loadVideo(){
 
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
+  const adContainer=document.getElementById("adContainer");
 
   // ✅ HLS
   if(video.canPlayType("application/vnd.apple.mpegurl")){
@@ -191,54 +190,78 @@ async function loadVideo(){
   video.addEventListener("canplay",()=>loader.style.display="none");
 
   // =========================
-  // 🎬 VAST ADS
+  // 🎬 FIXED VAST ADS
   // =========================
 
   const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
-  const adContainer=document.getElementById("adContainer");
+  let adsLoader, adsManager, adDisplayContainer;
 
-  let adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
-  let adsLoader=new google.ima.AdsLoader(adDisplayContainer);
+  function setupAds(){
+    adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
+    adsLoader = new google.ima.AdsLoader(adDisplayContainer);
 
-  function initAds(){
-    adDisplayContainer.initialize();
+    adsLoader.addEventListener(
+      google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+      onAdsManagerLoaded
+    );
 
-    const adsRequest=new google.ima.AdsRequest();
-    adsRequest.adTagUrl=adTagUrl;
-    adsRequest.linearAdSlotWidth=video.offsetWidth;
-    adsRequest.linearAdSlotHeight=video.offsetHeight;
+    adsLoader.addEventListener(
+      google.ima.AdErrorEvent.Type.AD_ERROR,
+      onAdError
+    );
+  }
+
+  function requestAds(){
+    const adsRequest = new google.ima.AdsRequest();
+    adsRequest.adTagUrl = adTagUrl;
+    adsRequest.linearAdSlotWidth = video.offsetWidth;
+    adsRequest.linearAdSlotHeight = video.offsetHeight;
 
     adsLoader.requestAds(adsRequest);
   }
 
-  adsLoader.addEventListener(
-    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-    function(event){
-      const adsManager=event.getAdsManager(video);
+  function onAdsManagerLoaded(event){
+    adsManager = event.getAdsManager(video);
 
-      try{
-        adsManager.init(video.offsetWidth,video.offsetHeight,google.ima.ViewMode.NORMAL);
-        adsManager.start();
-      }catch(e){
+    adsManager.addEventListener(
+      google.ima.AdErrorEvent.Type.AD_ERROR,
+      onAdError
+    );
+
+    adsManager.addEventListener(
+      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+      () => {
+        adContainer.style.display="none";
         video.play();
       }
-    }
-  );
+    );
 
-  adsLoader.addEventListener(
-    google.ima.AdErrorEvent.Type.AD_ERROR,
-    function(){
+    try{
+      adsManager.init(video.offsetWidth, video.offsetHeight, google.ima.ViewMode.NORMAL);
+      adsManager.start();
+    }catch(e){
       video.play();
     }
-  );
+  }
 
-  // ✅ Trigger ad on play
-  video.addEventListener("play",function(){
-    if(!video.adsStarted){
-      video.adsStarted=true;
-      initAds();
-    }
+  function onAdError(){
+    console.log("Ad failed → playing video");
+    adContainer.style.display="none";
+    video.play();
+  }
+
+  // ✅ Trigger ads on play (mobile safe)
+  video.addEventListener("play", function(){
+    if(video.adsStarted) return;
+
+    video.adsStarted = true;
+
+    setupAds();
+    adDisplayContainer.initialize(); // MUST
+    requestAds();
+
+    video.pause(); // pause for ad
   });
 
   // =========================
