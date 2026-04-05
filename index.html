@@ -37,31 +37,17 @@ body{
   position:relative;
   background:#000;
 }
-
-/* Click layer */
 #adLayer{
   position:absolute;
   inset:0;
   z-index:10;
   cursor:pointer;
 }
-
-/* VAST */
 #adContainer{
   position:absolute;
   inset:0;
   z-index:20;
 }
-
-/* FIXED slider */
-#sliderAd{
-  position:absolute;
-  bottom:0;
-  width:100%;
-  z-index:5;
-  pointer-events:none;
-}
-
 .buffering{
   position:absolute;
   inset:0;
@@ -72,9 +58,7 @@ body{
   z-index:5;
 }
 .buffering i{font-size:46px;}
-
 video{width:100%;background:#000;}
-
 .content{padding:22px;}
 .title{font-size:1.3rem;margin-bottom:12px;}
 .meta{
@@ -87,7 +71,6 @@ video{width:100%;background:#000;}
   margin-bottom:18px;
 }
 .meta div{font-size:.9rem;color:#94a3b8;}
-
 .actions{display:flex;gap:14px;flex-wrap:wrap;}
 .btn{
   flex:1;
@@ -104,13 +87,11 @@ video{width:100%;background:#000;}
 }
 .download{background:#3b82f6}
 .fast{background:#10b981}
-
 #bannerAd{
   width:100%;
   text-align:center;
   margin:10px 0;
 }
-
 #loading{padding:100px;text-align:center;}
 </style>
 </head>
@@ -145,8 +126,6 @@ const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
 app.innerHTML=`
 <div class="video-section">
-
-  <div id="sliderAd"></div>
 
   <div id="adLayer"></div>
   <div id="adContainer"></div>
@@ -184,7 +163,6 @@ app.innerHTML=`
 const video=document.getElementById("video");
 const adLayer=document.getElementById("adLayer");
 const adContainer=document.getElementById("adContainer");
-const loader=document.getElementById("buffering");
 
 /* HLS */
 if(video.canPlayType("application/vnd.apple.mpegurl")){
@@ -195,14 +173,11 @@ if(video.canPlayType("application/vnd.apple.mpegurl")){
   hls.attachMedia(video);
 }
 
-/* Loader */
-video.addEventListener("waiting",()=>loader.style.display="flex");
-video.addEventListener("playing",()=>loader.style.display="none");
-
 /* ===== VAST ===== */
 const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
 function startAds(){
+
   const adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
   adDisplayContainer.initialize();
 
@@ -218,13 +193,7 @@ function startAds(){
         ()=>{
           adContainer.style.display="none";
           video.play();
-        }
-      );
-
-      adsManager.addEventListener(
-        google.ima.AdErrorEvent.Type.AD_ERROR,
-        ()=>{
-          video.play();
+          loadExtraAds();
         }
       );
 
@@ -232,7 +201,7 @@ function startAds(){
         adsManager.init(video.offsetWidth,video.offsetHeight,google.ima.ViewMode.NORMAL);
         adsManager.start();
       }catch(e){
-        video.play();
+        startVideo();
       }
     }
   );
@@ -240,16 +209,39 @@ function startAds(){
   adsLoader.addEventListener(
     google.ima.AdErrorEvent.Type.AD_ERROR,
     ()=>{
-      video.play();
+      startVideo();
     }
   );
 
   const adsRequest=new google.ima.AdsRequest();
   adsRequest.adTagUrl=adTagUrl;
-  adsRequest.linearAdSlotWidth=video.offsetWidth;
-  adsRequest.linearAdSlotHeight=video.offsetHeight;
-
   adsLoader.requestAds(adsRequest);
+}
+
+function startVideo(){
+  adContainer.style.display="none";
+  video.play();
+  loadExtraAds();
+}
+
+/* ===== DELAY ADS ===== */
+function loadExtraAds(){
+
+  // Banner
+  setTimeout(()=>{
+    var s=document.createElement('script');
+    s.src="//selfassured-celebration.com/bsXaVCsLd.G/lu0rY/WxcK/Ve/mB9XuVZcUzlsk/PoToYA5tMSjDkgxoM-j/EKt/N/j/k/yjOxTfESySN/QY";
+    s.async=true;
+    document.getElementById("bannerAd").appendChild(s);
+  },2000);
+
+  // Slider
+  setTimeout(()=>{
+    var s=document.createElement('script');
+    s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
+    s.async=true;
+    document.body.appendChild(s);
+  },3000);
 }
 
 /* CLICK */
@@ -257,24 +249,7 @@ adLayer.addEventListener("click",()=>{
   adLayer.style.display="none";
   video.pause();
   startAds();
-
-  // ✅ slider delayed load (FIX)
-  setTimeout(()=>{
-    var s=document.createElement('script');
-    s.src="//selfassured-celebration.com/b/X.VLsId/Gol/0JYWWxcu/je/mi9huPZrUclUkuPSTjYx5/MVjVkEw/NXDokvt/NIjakNylOSTnA/1kMxwT";
-    s.async=true;
-    document.getElementById("sliderAd").appendChild(s);
-  },2000);
-
 });
-
-/* Banner */
-(function(){
-  var s=document.createElement('script');
-  s.src="//selfassured-celebration.com/bsXaVCsLd.G/lu0rY/WxcK/Ve/mB9XuVZcUzlsk/PoToYA5tMSjDkgxoM-j/EKt/N/j/k/yjOxTfESySN/QY";
-  s.async=true;
-  document.getElementById("bannerAd").appendChild(s);
-})();
 
 }
 
