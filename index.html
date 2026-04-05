@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="b9b057393ec6f995f59f27dd1da570fcd5b4037a" content="b9b057393ec6f995f59f27dd1da570fcd5b4037a" />  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Default Player</title>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<!-- ✅ IMA SDK -->
+<script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
 <style>
 :root{
@@ -34,6 +37,17 @@ body{
   position:relative;
   background:#000;
 }
+
+/* ✅ Ads container */
+#adContainer{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:10;
+}
+
 .buffering{
   position:absolute;
   inset:0;
@@ -96,6 +110,7 @@ video{
 }
 </style>
 </head>
+
 <body>
 
 <div class="main-card" id="app">
@@ -107,21 +122,8 @@ video{
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-// 🔥 2 SMARTLINK ROTATION
-const SMARTLINKS = [
-  "https://yawncollaremotion.com/d6t7gz80vk?key=f42e62f3f0beafbf9284f45dc3121e6f",
-  "https://omg10.com/4/5361845"
-];
-
-function getSmartLink(){
-  return SMARTLINKS[Math.floor(Math.random() * SMARTLINKS.length)];
-}
-
-function openAd(){
-  window.open(getSmartLink(), "_blank");
-}
-
 async function loadVideo(){
+
   const app=document.getElementById("app");
   const videoUrl=new URLSearchParams(location.search).get("url");
 
@@ -134,35 +136,39 @@ async function loadVideo(){
   const res=await fetch(api);
   const data=await res.json();
 
-  if(data.status!=="success" || !data.list?.length) return;
+  if(data.status!=="success") return;
 
   const file=data.list[0];
   const stream=file.fast_stream_url?.["480p"] || file.stream_url;
 
-  const downloadLink = file.normal_dlink || file.zip_dlink;
-  const fastDownload = file.normal_dlink || file.zip_dlink;
-
   app.innerHTML=`
   <div class="video-section">
+
+    <!-- ✅ VAST Ads Container -->
+    <div id="adContainer"></div>
+
     <div class="buffering" id="buffering">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
+
     <video id="video" controls playsinline poster="${file.thumbnail}"></video>
   </div>
 
   <div class="content">
     <div class="title">${file.name}</div>
+
     <div class="meta">
       <div>💾 ${file.size_formatted}</div>
       <div>⏱ ${file.duration}</div>
       <div>🎥 ${file.quality}</div>
       <div>📁 ${file.folder}</div>
     </div>
+
     <div class="actions">
-      <a class="btn download" id="downloadBtn" href="${downloadLink}" target="_blank">
+      <a class="btn download" href="${file.download_link}" target="_blank">
         <i class="fas fa-download"></i> Download
       </a>
-      <a class="btn fast" id="fastBtn" href="${fastDownload}" target="_blank">
+      <a class="btn fast" href="${file.fast_download_link}" target="_blank">
         <i class="fas fa-bolt"></i> Fast Download
       </a>
     </div>
@@ -172,7 +178,7 @@ async function loadVideo(){
   const video=document.getElementById("video");
   const loader=document.getElementById("buffering");
 
-  // 🎬 HLS
+  // ✅ HLS Setup
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=stream;
   }else if(Hls.isSupported()){
@@ -183,24 +189,61 @@ async function loadVideo(){
 
   video.addEventListener("waiting",()=>loader.style.display="flex");
   video.addEventListener("playing",()=>loader.style.display="none");
+  video.addEventListener("canplay",()=>loader.style.display="none");
 
-  // 🔽 DOWNLOAD → ROTATION AD
-  document.getElementById("downloadBtn").onclick=openAd;
-  document.getElementById("fastBtn").onclick=openAd;
+  // =========================
+  // 🎬 VAST ADS (IMA SDK)
+  // =========================
 
-  // 🔙 BACK BUTTON → ROTATION AD
-  let backAdShown=false;
-  history.pushState(null,null,location.href);
+  const adTagUrl="https://fluffy-management.com/dimVF.zzdWGkNhvzZ/G/UC/zevm/9/uCZfUYlIkCPbTDYM5mMAjEgg5/NqzPcJtvNkjrklyEO/DfkO4gMFS/Zksba/WV1_p/d/DB0HxF";
 
-  window.addEventListener("popstate",()=>{
-    if(!backAdShown){
-      backAdShown=true;
-      openAd();
-      history.pushState(null,null,location.href);
+  const adContainer=document.getElementById("adContainer");
+
+  let adDisplayContainer=new google.ima.AdDisplayContainer(adContainer,video);
+  let adsLoader=new google.ima.AdsLoader(adDisplayContainer);
+
+  function initAds(){
+    adDisplayContainer.initialize();
+
+    const adsRequest=new google.ima.AdsRequest();
+    adsRequest.adTagUrl=adTagUrl;
+    adsRequest.linearAdSlotWidth=video.offsetWidth;
+    adsRequest.linearAdSlotHeight=video.offsetHeight;
+
+    adsLoader.requestAds(adsRequest);
+  }
+
+  adsLoader.addEventListener(
+    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+    function(event){
+      const adsManager=event.getAdsManager(video);
+
+      try{
+        adsManager.init(video.offsetWidth,video.offsetHeight,google.ima.ViewMode.NORMAL);
+        adsManager.start();
+      }catch(e){
+        video.play();
+      }
+    }
+  );
+
+  adsLoader.addEventListener(
+    google.ima.AdErrorEvent.Type.AD_ERROR,
+    function(){
+      video.play();
+    }
+  );
+
+  // 👉 Play pe ad trigger
+  video.addEventListener("play",function(){
+    if(!video.adsStarted){
+      video.adsStarted=true;
+      initAds();
     }
   });
 
-  // 📱 Orientation
+  // =========================
+
   document.addEventListener("fullscreenchange",()=>{
     if(!document.fullscreenElement){
       screen.orientation?.unlock?.();
