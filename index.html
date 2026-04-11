@@ -95,12 +95,25 @@ video{
   text-align:center;
 }
 
-/* ✅ DELAY AD */
-#delayedAd{
-display:none;
-margin-top:20px;
-text-align:center;
-width:100%;
+/* ✅ DELAY AD CONTAINER */
+#delayedAdContainer{
+  display:none;
+  margin-top:20px;
+  text-align:center;
+  width:100%;
+  max-width:1000px;
+}
+.ad-grid{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+}
+.ad-row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
 }
 </style>
 </head>
@@ -113,12 +126,85 @@ width:100%;
   </div>
 </div>
 
-<!-- ✅ 5 SEC DELAY AD -->
-<div id="delayedAd">
-  <script async data-cfasync="false"
-    src="https://pl28453807.effectivegatecpm.com/e1b6987953b44b06af771c434831e631/invoke.js">
-  </script>
-  <div id="container-e1b6987953b44b06af771c434831e631"></div>
+<!-- ✅ ALL ADS WITH 5 SECOND DELAY -->
+<div id="delayedAdContainer">
+  <div class="ad-grid">
+    <!-- Ad 1 -->
+    <script async="async" data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
+    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+    
+    <!-- Ad 2 -->
+    <script>
+      atOptions = {
+        'key' : '50b4b55f05148a736cd8ebf691550dbb',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
+    
+    <!-- Ad 3 -->
+    <script>
+      atOptions = {
+        'key' : 'd44514311f6e562115f063a2ee3378ae',
+        'format' : 'iframe',
+        'height' : 300,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
+    
+    <!-- Ad 4 -->
+    <script>
+      atOptions = {
+        'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
+        'format' : 'iframe',
+        'height' : 600,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
+    
+    <!-- Ad 5 -->
+    <script>
+      atOptions = {
+        'key' : '93776dbcf14064f38bdbaf5626488ecb',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/93776dbcf14064f38bdbaf5626488ecb/invoke.js"></script>
+    
+    <!-- Ad 6 -->
+    <script>
+      atOptions = {
+        'key' : 'fe06fb3af6372d07d1209335526f8a1e',
+        'format' : 'iframe',
+        'height' : 60,
+        'width' : 468,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/fe06fb3af6372d07d1209335526f8a1e/invoke.js"></script>
+    
+    <!-- Ad 7 -->
+    <script>
+      atOptions = {
+        'key' : 'a3e9dc25add10d9e1a011af79ed04506',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"></script>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -214,11 +300,11 @@ async function loadVideo(){
 
 loadVideo();
 
-/* ⏱️ 5 SECOND DELAY */
+/* ⏱️ 5 SECOND DELAY FOR ADS */
 setTimeout(()=>{
-  const ad=document.getElementById("delayedAd");
-  if(ad){
-    ad.style.display="block";
+  const adContainer=document.getElementById("delayedAdContainer");
+  if(adContainer){
+    adContainer.style.display="block";
   }
 },5000);
 </script>
