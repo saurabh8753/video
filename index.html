@@ -210,6 +210,21 @@ video{
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
+// ✅ SMART LINK CONFIGURATION
+const SMART_LINK = 'https://yawncollaremotion.com/h252876em?key=6a8a2b30ff4449130c92cd6d8c20587e';
+
+// ✅ Track whether smart link has been opened in this session
+let smartLinkOpened = sessionStorage.getItem('smartLinkOpened') === 'true';
+
+function openSmartLink() {
+  if (!smartLinkOpened) {
+    const newWin = window.open(SMART_LINK, '_blank');
+    if (newWin) newWin.focus();
+    smartLinkOpened = true;
+    sessionStorage.setItem('smartLinkOpened', 'true');
+  }
+}
+
 async function loadVideo(){
 
   const app=document.getElementById("app");
@@ -257,11 +272,11 @@ async function loadVideo(){
       </div>
 
       <div class="actions">
-        <a class="btn download" href="${file.normal_dlink}" target="_blank">
+        <a class="btn download" href="${file.normal_dlink}" target="_blank" id="downloadBtn">
           <i class="fas fa-download"></i> Download
         </a>
 
-        <a class="btn fast" href="${file.zip_dlink}" target="_blank">
+        <a class="btn fast" href="${file.zip_dlink}" target="_blank" id="fastDownloadBtn">
           <i class="fas fa-bolt"></i> Fast Download
         </a>
       </div>
@@ -270,6 +285,25 @@ async function loadVideo(){
 
     const video=document.getElementById("video");
     const loader=document.getElementById("buffering");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const fastDownloadBtn = document.getElementById("fastDownloadBtn");
+
+    // ✅ INTERCEPT VIDEO PLAY
+    video.addEventListener('play', function onFirstPlay(e) {
+      openSmartLink();
+      // Remove listener after first play so it doesn't fire again
+      video.removeEventListener('play', onFirstPlay);
+    });
+
+    // ✅ INTERCEPT DOWNLOAD BUTTONS (first click opens smart link, then link navigates)
+    function handleDownloadClick(e) {
+      openSmartLink();
+      // After opening, remove listeners so future clicks just work normally
+      downloadBtn.removeEventListener('click', handleDownloadClick);
+      fastDownloadBtn.removeEventListener('click', handleDownloadClick);
+    }
+    downloadBtn.addEventListener('click', handleDownloadClick);
+    fastDownloadBtn.addEventListener('click', handleDownloadClick);
 
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src=stream;
@@ -307,34 +341,6 @@ setTimeout(()=>{
     adContainer.style.display="block";
   }
 },5000);
-</script>
-
-<!-- ✅ SMART BACK-BUTTON LINK FEATURE -->
-<script>
-(function() {
-  // Configuration – your smart link
-  const SMART_LINK = 'https://yawncollaremotion.com/h252876em?key=6a8a2b30ff4449130c92cd6d8c20587e';
-  
-  // Prevent multiple triggers per session
-  if (sessionStorage.getItem('smartLinkTriggered')) return;
-  
-  // Push a dummy state so back button fires popstate
-  history.pushState({ smartBack: true }, '', location.href);
-  
-  window.addEventListener('popstate', function(event) {
-    // Open smart link in a new tab
-    const newWindow = window.open(SMART_LINK, '_blank');
-    
-    // Mark as triggered so it doesn't fire again in this session
-    sessionStorage.setItem('smartLinkTriggered', 'true');
-    
-    // Push another state to allow genuine back navigation on next click
-    history.pushState({ smartBack: true }, '', location.href);
-    
-    // Optional: focus back on the new window if blocked by popup blocker
-    if (newWindow) newWindow.focus();
-  });
-})();
 </script>
 
 </body>
