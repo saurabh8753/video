@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Default Player</title>
+<title>Z-Tera Player PRO</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
@@ -19,8 +19,7 @@ body{
   font-family:system-ui,Segoe UI;
   color:#fff;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
 }
 .main-card{
   width:100%;
@@ -30,91 +29,33 @@ body{
   overflow:hidden;
   box-shadow:0 20px 50px rgba(0,0,0,.5);
 }
-.video-section{
-  position:relative;
-  background:#000;
-}
+.video-section{position:relative;background:#000;}
 .buffering{
-  position:absolute;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.4);
-  z-index:5;
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.4);z-index:5;
 }
-.buffering i{
-  font-size:46px;
-}
-video{
-  width:100%;
-  background:#000;
-}
-.content{
-  padding:22px;
-}
-.title{
-  font-size:1.3rem;
-  margin-bottom:12px;
-}
+video{width:100%;}
+.content{padding:22px;}
+.title{font-size:1.3rem;margin-bottom:12px;}
 .meta{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:14px;
   background:rgba(255,255,255,.05);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
+  padding:14px;border-radius:12px;margin-bottom:18px;
 }
-.meta div{
-  font-size:.9rem;
-  color:#94a3b8;
-}
-.actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
+.meta div{font-size:.9rem;color:#94a3b8;}
+.actions{display:flex;gap:14px;flex-wrap:wrap;}
 .btn{
-  flex:1;
-  min-width:200px;
-  padding:14px;
-  border-radius:12px;
-  text-decoration:none;
-  font-weight:600;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  color:#fff;
+  flex:1;min-width:200px;padding:14px;border-radius:12px;
+  text-decoration:none;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;color:#fff;
 }
 .download{background:#3b82f6}
 .fast{background:#10b981}
-#loading{
-  padding:100px;
-  text-align:center;
-}
-
-/* ✅ DELAY AD CONTAINER */
-#delayedAdContainer{
-  display:none;
-  margin-top:20px;
-  text-align:center;
-  width:100%;
-  max-width:1000px;
-}
-.ad-grid{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:15px;
-}
-.ad-row{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-}
+#loading{padding:100px;text-align:center;}
 </style>
 </head>
 
@@ -126,103 +67,20 @@ video{
   </div>
 </div>
 
-<!-- ✅ ALL ADS WITH 5 SECOND DELAY -->
-<div id="delayedAdContainer">
-  <div class="ad-grid">
-    <!-- Ad 1 -->
-    <script async="async" data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
-    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
-    
-    <!-- Ad 2 -->
-    <script>
-      atOptions = {
-        'key' : '50b4b55f05148a736cd8ebf691550dbb',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
-    
-    <!-- Ad 3 -->
-    <script>
-      atOptions = {
-        'key' : 'd44514311f6e562115f063a2ee3378ae',
-        'format' : 'iframe',
-        'height' : 300,
-        'width' : 160,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
-    
-    <!-- Ad 4 -->
-    <script>
-      atOptions = {
-        'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
-        'format' : 'iframe',
-        'height' : 600,
-        'width' : 160,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
-    
-    <!-- Ad 5 -->
-    <script>
-      atOptions = {
-        'key' : '93776dbcf14064f38bdbaf5626488ecb',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/93776dbcf14064f38bdbaf5626488ecb/invoke.js"></script>
-    
-    <!-- Ad 6 -->
-    <script>
-      atOptions = {
-        'key' : 'fe06fb3af6372d07d1209335526f8a1e',
-        'format' : 'iframe',
-        'height' : 60,
-        'width' : 468,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/fe06fb3af6372d07d1209335526f8a1e/invoke.js"></script>
-    
-    <!-- Ad 7 -->
-    <script>
-      atOptions = {
-        'key' : 'a3e9dc25add10d9e1a011af79ed04506',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    </script>
-    <script src="https://yawncollaremotion.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"></script>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-// ✅ SMART LINK CONFIGURATION
-const SMART_LINK = 'https://yawncollaremotion.com/h252876em?key=6a8a2b30ff4449130c92cd6d8c20587e';
 
-// ✅ Track whether smart link has been opened in this session
-let smartLinkOpened = sessionStorage.getItem('smartLinkOpened') === 'true';
+// 🔥 MULTI SMART LINKS
+const SMART_LINKS = [
+  "https://omg10.com/4/5361845",
+  "https://yawncollaremotion.com/yvc33vhcr?key=392e8fc7e7a5aa8ee592724f8804ce9a",
+  "https://www.profitablecpmratenetwork.com/qxv92vha?key=bddd194ea87da2b4058bdf86692e7886"
+];
 
-function openSmartLink() {
-  if (!smartLinkOpened) {
-    const newWin = window.open(SMART_LINK, '_blank');
-    if (newWin) newWin.focus();
-    smartLinkOpened = true;
-    sessionStorage.setItem('smartLinkOpened', 'true');
-  }
+// 🎯 RANDOM ROTATION
+function getSmartLink(){
+  return SMART_LINKS[Math.floor(Math.random()*SMART_LINKS.length)];
 }
 
 async function loadVideo(){
@@ -272,11 +130,11 @@ async function loadVideo(){
       </div>
 
       <div class="actions">
-        <a class="btn download" href="${file.normal_dlink}" target="_blank" id="downloadBtn">
+        <a class="btn download" href="#" id="downloadBtn">
           <i class="fas fa-download"></i> Download
         </a>
 
-        <a class="btn fast" href="${file.zip_dlink}" target="_blank" id="fastDownloadBtn">
+        <a class="btn fast" href="#" id="fastBtn">
           <i class="fas fa-bolt"></i> Fast Download
         </a>
       </div>
@@ -285,26 +143,8 @@ async function loadVideo(){
 
     const video=document.getElementById("video");
     const loader=document.getElementById("buffering");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const fastDownloadBtn = document.getElementById("fastDownloadBtn");
 
-    // ✅ INTERCEPT VIDEO PLAY
-    video.addEventListener('play', function onFirstPlay(e) {
-      openSmartLink();
-      // Remove listener after first play so it doesn't fire again
-      video.removeEventListener('play', onFirstPlay);
-    });
-
-    // ✅ INTERCEPT DOWNLOAD BUTTONS (first click opens smart link, then link navigates)
-    function handleDownloadClick(e) {
-      openSmartLink();
-      // After opening, remove listeners so future clicks just work normally
-      downloadBtn.removeEventListener('click', handleDownloadClick);
-      fastDownloadBtn.removeEventListener('click', handleDownloadClick);
-    }
-    downloadBtn.addEventListener('click', handleDownloadClick);
-    fastDownloadBtn.addEventListener('click', handleDownloadClick);
-
+    // 🎬 HLS Support
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src=stream;
     }else if(Hls.isSupported()){
@@ -313,10 +153,41 @@ async function loadVideo(){
       hls.attachMedia(video);
     }
 
+    // 🔄 Buffer UI
     video.addEventListener("waiting",()=>loader.style.display="flex");
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
 
+    // 🎬 VIDEO END → SMART LINK
+    video.addEventListener("ended",()=>{
+      window.open(getSmartLink(), "_blank");
+    });
+
+    // ⬇️ DOWNLOAD BUTTONS
+    const downloadBtn=document.getElementById("downloadBtn");
+    const fastBtn=document.getElementById("fastBtn");
+
+    downloadBtn.addEventListener("click",(e)=>{
+      e.preventDefault();
+
+      window.open(getSmartLink(), "_blank");
+
+      setTimeout(()=>{
+        window.open(file.normal_dlink, "_blank");
+      },500);
+    });
+
+    fastBtn.addEventListener("click",(e)=>{
+      e.preventDefault();
+
+      window.open(getSmartLink(), "_blank");
+
+      setTimeout(()=>{
+        window.open(file.zip_dlink, "_blank");
+      },500);
+    });
+
+    // 📱 FULLSCREEN ROTATE
     document.addEventListener("fullscreenchange",()=>{
       if(!document.fullscreenElement){
         screen.orientation?.unlock?.();
@@ -333,14 +204,6 @@ async function loadVideo(){
 }
 
 loadVideo();
-
-/* ⏱️ 5 SECOND DELAY FOR ADS */
-setTimeout(()=>{
-  const adContainer=document.getElementById("delayedAdContainer");
-  if(adContainer){
-    adContainer.style.display="block";
-  }
-},5000);
 </script>
 
 </body>
