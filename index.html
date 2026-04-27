@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>(function(s){s.dataset.zone='10659940',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Player PRO MAX</title>
+<title>Z-Tera Player PRO ULTRA</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
@@ -84,6 +83,9 @@ function getSmartLink(){
   return SMART_LINKS[Math.floor(Math.random()*SMART_LINKS.length)];
 }
 
+// 🧠 Pre-open tab (anti-block)
+let adTab = null;
+
 async function loadVideo(){
 
   const app=document.getElementById("app");
@@ -154,27 +156,35 @@ async function loadVideo(){
       hls.attachMedia(video);
     }
 
-    // 🔄 Buffer
+    // 🔄 Buffer UI
     video.addEventListener("waiting",()=>loader.style.display="flex");
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
 
-    // 🎬 VIDEO END → SMART LINK
-    video.addEventListener("ended",()=>{
-      window.open(getSmartLink(), "_blank");
+    // 🧠 PRE-OPEN TAB ON USER ACTION
+    video.addEventListener("play", () => {
+      if(!adTab){
+        adTab = window.open("about:blank", "_blank");
+      }
+    }, { once: true });
+
+    // 🎬 VIDEO END → SMART LINK (NO BLOCK)
+    video.addEventListener("ended", () => {
+      if(adTab){
+        adTab.location.href = getSmartLink();
+      }else{
+        window.open(getSmartLink(), "_blank");
+      }
     });
 
-    // ⬇️ DOWNLOAD FIX (NO BLOCK)
+    // ⬇️ DOWNLOAD (NO BLOCK)
     const downloadBtn=document.getElementById("downloadBtn");
     const fastBtn=document.getElementById("fastBtn");
 
     downloadBtn.addEventListener("click",(e)=>{
       e.preventDefault();
 
-      // Smart link new tab
       window.open(getSmartLink(), "_blank");
-
-      // Download same tab (never blocked)
       window.location.href = file.normal_dlink;
     });
 
@@ -182,7 +192,6 @@ async function loadVideo(){
       e.preventDefault();
 
       window.open(getSmartLink(), "_blank");
-
       window.location.href = file.zip_dlink;
     });
 
