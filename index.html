@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Z-Tera Player PRO ULTRA</title>
+<title>Z-Tera Player CLEAN</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
@@ -20,6 +20,8 @@ body{
   color:#fff;
   display:flex;
   justify-content:center;
+  flex-direction: column;
+  align-items: center;
 }
 .main-card{
   width:100%;
@@ -56,6 +58,21 @@ video{width:100%;}
 .download{background:#3b82f6}
 .fast{background:#10b981}
 #loading{padding:100px;text-align:center;}
+
+/* ✅ DELAY AD CONTAINER */
+#delayedAdContainer {
+  display: none;
+  width: 100%;
+  max-width: 1000px;
+  margin-top: 20px;
+  text-align: center;
+}
+.ad-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
 </style>
 </head>
 
@@ -64,6 +81,87 @@ video{width:100%;}
 <div class="main-card" id="app">
   <div id="loading">
     <i class="fas fa-spinner fa-spin"></i> Loading Video...
+  </div>
+</div>
+
+<!-- ✅ ALL ADS (hidden initially, shown after 5 seconds) -->
+<div id="delayedAdContainer">
+  <div class="ad-grid">
+    <!-- Ad 1 -->
+    <script async="async" data-cfasync="false" src="https://yawncollaremotion.com/900480f9b5ddbf7c34e9918ef9b9770e/invoke.js"></script>
+    <div id="container-900480f9b5ddbf7c34e9918ef9b9770e"></div>
+    
+    <!-- Ad 2 -->
+    <script>
+      atOptions = {
+        'key' : '50b4b55f05148a736cd8ebf691550dbb',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/50b4b55f05148a736cd8ebf691550dbb/invoke.js"></script>
+    
+    <!-- Ad 3 -->
+    <script>
+      atOptions = {
+        'key' : 'd44514311f6e562115f063a2ee3378ae',
+        'format' : 'iframe',
+        'height' : 300,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/d44514311f6e562115f063a2ee3378ae/invoke.js"></script>
+    
+    <!-- Ad 4 -->
+    <script>
+      atOptions = {
+        'key' : '7e3aad7d30ac762de82b56ec8ed49cf4',
+        'format' : 'iframe',
+        'height' : 600,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/7e3aad7d30ac762de82b56ec8ed49cf4/invoke.js"></script>
+    
+    <!-- Ad 5 -->
+    <script>
+      atOptions = {
+        'key' : '93776dbcf14064f38bdbaf5626488ecb',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/93776dbcf14064f38bdbaf5626488ecb/invoke.js"></script>
+    
+    <!-- Ad 6 -->
+    <script>
+      atOptions = {
+        'key' : 'fe06fb3af6372d07d1209335526f8a1e',
+        'format' : 'iframe',
+        'height' : 60,
+        'width' : 468,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/fe06fb3af6372d07d1209335526f8a1e/invoke.js"></script>
+    
+    <!-- Ad 7 -->
+    <script>
+      atOptions = {
+        'key' : 'a3e9dc25add10d9e1a011af79ed04506',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://yawncollaremotion.com/a3e9dc25add10d9e1a011af79ed04506/invoke.js"></script>
   </div>
 </div>
 
@@ -82,9 +180,6 @@ const SMART_LINKS = [
 function getSmartLink(){
   return SMART_LINKS[Math.floor(Math.random()*SMART_LINKS.length)];
 }
-
-// 🧠 Pre-open tab (anti-block)
-let adTab = null;
 
 async function loadVideo(){
 
@@ -161,30 +256,17 @@ async function loadVideo(){
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
 
-    // 🧠 PRE-OPEN TAB ON USER ACTION
-    video.addEventListener("play", () => {
-      if(!adTab){
-        adTab = window.open("about:blank", "_blank");
-      }
-    }, { once: true });
-
-    // 🎬 VIDEO END → SMART LINK (NO BLOCK)
-    video.addEventListener("ended", () => {
-      if(adTab){
-        adTab.location.href = getSmartLink();
-      }else{
-        window.open(getSmartLink(), "_blank");
-      }
-    });
-
-    // ⬇️ DOWNLOAD (NO BLOCK)
+    // ⬇️ DOWNLOAD (SMART LINK + DOWNLOAD)
     const downloadBtn=document.getElementById("downloadBtn");
     const fastBtn=document.getElementById("fastBtn");
 
     downloadBtn.addEventListener("click",(e)=>{
       e.preventDefault();
 
+      // Smart link (new tab)
       window.open(getSmartLink(), "_blank");
+
+      // Download (same tab → no block)
       window.location.href = file.normal_dlink;
     });
 
@@ -212,6 +294,14 @@ async function loadVideo(){
 }
 
 loadVideo();
+
+/* ⏱️ 5 SECOND DELAY FOR ADS */
+setTimeout(()=>{
+  const adContainer = document.getElementById("delayedAdContainer");
+  if(adContainer){
+    adContainer.style.display = "block";
+  }
+}, 5000);
 </script>
 
 </body>
