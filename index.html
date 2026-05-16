@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<script src="https://yawncollaremotion.com/1f/b4/9e/1fb49e1a250def848b8bf38449ebf4a5.js"></script>
-  
+<head>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z-Tera Player CLEAN</title>
@@ -39,7 +37,7 @@ body{
   align-items:center;justify-content:center;
   background:rgba(0,0,0,.4);z-index:5;
 }
-video{width:100%;}
+video{width:100%;display:block;cursor:pointer;}
 .content{padding:22px;}
 .title{font-size:1.3rem;margin-bottom:12px;}
 .meta{
@@ -152,6 +150,10 @@ async function loadVideo(){
       <div class="buffering" id="buffering">
         <i class="fas fa-spinner fa-spin"></i>
       </div>
+      <!-- Custom overlay to catch the very first click on mobile/desktop cleanly -->
+      <div id="playerOverlay" style="position:absolute; inset:0; z-index:4; cursor:pointer; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.1);">
+        <div style="background:rgba(0,0,0,0.7); width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff;"><i class="fas fa-play" style="margin-left:4px;"></i></div>
+      </div>
       <video id="video" controls playsinline poster="${file.thumbnail || ''}"></video>
     </div>
 
@@ -179,8 +181,9 @@ async function loadVideo(){
 
     const video=document.getElementById("video");
     const loader=document.getElementById("buffering");
+    const overlay=document.getElementById("playerOverlay");
 
-    // 🎬 HLS
+    // 🎬 HLS Loader
     if(video.canPlayType("application/vnd.apple.mpegurl")){
       video.src=stream;
     }else if(Hls.isSupported()){
@@ -194,24 +197,33 @@ async function loadVideo(){
     video.addEventListener("playing",()=>loader.style.display="none");
     video.addEventListener("canplay",()=>loader.style.display="none");
 
-    // ⬇️ DOWNLOAD (SMART LINK + DOWNLOAD)
+    // 🎯 FIRST CLICK ON VIDEO: OPEN AD + PLAY VIDEO
+    if(overlay){
+      overlay.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        
+        // 1. Open Smart link in new tab
+        window.open(getSmartLink(), "_blank");
+        
+        // 2. Remove overlay so user can access standard video controls
+        overlay.style.display = "none";
+        
+        // 3. Play the video
+        video.play().catch(()=>{});
+      });
+    }
+
+    // ⬇️ DOWNLOAD BUTTONS (DIRECT DOWNLOADS ONLY)
     const downloadBtn=document.getElementById("downloadBtn");
     const fastBtn=document.getElementById("fastBtn");
 
     downloadBtn.addEventListener("click",(e)=>{
       e.preventDefault();
-
-      // Smart link (new tab)
-      window.open(getSmartLink(), "_blank");
-
-      // Download (same tab → no block)
       window.location.href = file.normal_dlink;
     });
 
     fastBtn.addEventListener("click",(e)=>{
       e.preventDefault();
-
-      window.open(getSmartLink(), "_blank");
       window.location.href = file.zip_dlink;
     });
 
@@ -244,5 +256,3 @@ setTimeout(()=>{
 
 </body>
 </html>
-
-
